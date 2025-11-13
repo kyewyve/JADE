@@ -1,6 +1,6 @@
 /**
 * @author kye
-* @link https://darkseal.org/
+* @link https://github.com/kyewyve/Jade
 */
 
 window.Effect.apply('unified', { color: "#000000DA" });
