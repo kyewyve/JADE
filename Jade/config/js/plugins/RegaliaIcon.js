@@ -3,13 +3,13 @@
     STYLE_ID: "regalia.icon-style",
     MODAL_ID: "regalia.icon-modal",
     DATASTORE_KEY: "regalia.icon-datastore",
-    API_URL: "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-icons.json",
-    CACHE_KEY: "regalia.icons-cache",
-    CACHE_TIMEOUT: 24 * 60 * 60 * 1000
+    API_URL: "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/summoner-icons.json"
   };
 
   let currentIconSearchQuery = "";
   let iconSearchTimeout = null;
+  let currentPage = 1;
+  const ITEMS_PER_PAGE = 32;
 
   function StopTimeProp(object, properties) {
     if (!object) return;
@@ -161,6 +161,8 @@
       this.iconTimeouts = [];
       this.currentIconId = null;
       this.iconsData = null;
+      this.dataLoaded = false;
+      this.sortedIcons = null;
       this.init();
     }
 
@@ -178,46 +180,21 @@
       } catch (error) {}
     }
 
-    getCachedIcons() {
-      if (!window.DataStore) return null;
-      
-      const cached = window.DataStore.get(CONFIG.CACHE_KEY);
-      if (!cached) return null;
-      
-      const { data, timestamp } = cached;
-      if (Date.now() - timestamp > CONFIG.CACHE_TIMEOUT) {
-        return null;
-      }
-      
-      return data;
-    }
-
-    cacheIcons(icons) {
-      if (window.DataStore) {
-        window.DataStore.set(CONFIG.CACHE_KEY, {
-          data: icons,
-          timestamp: Date.now()
-        });
-      }
-    }
-
     async loadIconsData() {
-      const cached = this.getCachedIcons();
-      if (cached) {
-        this.iconsData = cached;
-        return;
-      }
-
+      if (this.dataLoaded) return;
+      
       try {
         const response = await fetch(CONFIG.API_URL);
         const icons = await response.json();
+        this.iconsData = icons.filter((icon) => icon.id !== -1);
         
-        const validIcons = icons.filter((icon) => icon.id !== -1);
-        this.iconsData = validIcons;
+        this.sortedIcons = [...this.iconsData].sort((a, b) => b.id - a.id);
         
-        this.cacheIcons(validIcons);
+        this.dataLoaded = true;
       } catch (error) {
         this.iconsData = [];
+        this.sortedIcons = [];
+        this.dataLoaded = true;
       }
     }
 	
@@ -553,10 +530,6 @@
       searchInput.type = 'text';
       searchInput.placeholder = 'Search...';
       searchInput.className = 'search-input';
-      searchInput.addEventListener('input', (e) => {
-        this.filterTitles(e.target.value);
-      });
-
       searchContainer.appendChild(searchInput);
       content.appendChild(searchContainer);
 	  
@@ -585,6 +558,7 @@
 	  const closeModal = () => {
         searchInput.value = '';
         currentIconSearchQuery = '';
+        currentPage = 1;
 		document.body.removeChild(modal);
 	  };
 	  
@@ -592,28 +566,203 @@
 	  
 	  const listContainer = document.createElement('div');
 	  listContainer.style.flex = '1';
-	  listContainer.style.overflowY = 'auto';
-	  listContainer.style.overflowX = 'hidden';
+	  listContainer.style.overflow = 'hidden';
 	  listContainer.style.marginTop = '0px';
-	  listContainer.style.paddingRight = '10px';
+	  listContainer.style.padding = '10px';
+	  listContainer.style.boxSizing = 'border-box';
 			
 	  const list = document.createElement('div');
 	  list.style.display = 'grid';
-	  list.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+	  list.style.gridTemplateColumns = 'repeat(auto-fill, minmax(100px, 1fr))';
 	  list.style.gap = '15px';
 	  list.style.width = '100%';
 	  list.style.marginTop = '10px';
 	  list.style.boxSizing = 'border-box';
 
 	  listContainer.appendChild(list);
+	  
+	  const paginationContainer = document.createElement('div');
+	  paginationContainer.style.display = 'flex';
+	  paginationContainer.style.justifyContent = 'flex-end';
+	  paginationContainer.style.alignItems = 'center';
+	  paginationContainer.style.gap = '20px';
+	  paginationContainer.style.marginTop = '-30px';
+	  paginationContainer.style.padding = '8px';
+	  
+	  const prevButton = document.createElement('button');
+	  prevButton.innerHTML = '&lt;';
+	  prevButton.className = 'pagination-button';
+	  
+	  const nextButton = document.createElement('button');
+	  nextButton.innerHTML = '&gt;';
+	  nextButton.className = 'pagination-button';
+	  
+	  const pageInfo = document.createElement('span');
+		pageInfo.className = 'page-info';
+		pageInfo.style.color = '#728581';
+		pageInfo.style.fontSize = '14px';
+		pageInfo.style.fontFamily = 'Montserrat, sans-serif';
+		pageInfo.style.fontWeight = 'normal';
+		pageInfo.style.cursor = 'pointer';
+		pageInfo.style.padding = '6px 12px';
+		pageInfo.style.margin = '0';
+		pageInfo.style.borderRadius = '4px';
+		pageInfo.style.transition = 'all 0.3s ease';
+		pageInfo.style.display = 'inline-block';
+		pageInfo.style.minWidth = '60px';
+		pageInfo.style.textAlign = 'center';
+		pageInfo.style.lineHeight = '1.2';
+		pageInfo.style.boxSizing = 'border-box';
+	  
+	  paginationContainer.appendChild(prevButton);
+	  paginationContainer.appendChild(pageInfo);
+	  paginationContainer.appendChild(nextButton);
+	  
 	  content.appendChild(closeBtn);
 	  content.appendChild(listContainer);
+	  content.appendChild(paginationContainer);
 	  modal.appendChild(content);
 	  document.body.appendChild(modal);
 
-	  listContainer.className = 'jade-scrollable';
+	  if (!this.dataLoaded) {
+		list.innerHTML = `
+		  <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+			<p style="color: #728581; font-size: 16px; margin: 0;">Loading icons...</p>
+		  </div>
+		`;
+		
+		await this.loadIconsData();
+	  }
 
-	  this.loadIconsIntoModal(list, modal, searchInput);
+	  let totalPages = 0;
+	  let pageInput = null;
+
+	  const updatePagination = (filteredIcons) => {
+        totalPages = Math.ceil(filteredIcons.length / ITEMS_PER_PAGE);
+        pageInfo.textContent = `${currentPage}/${totalPages}`;
+        
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages || totalPages === 0;
+        
+        if (prevButton.disabled) {
+            prevButton.classList.add('disabled');
+        } else {
+            prevButton.classList.remove('disabled');
+        }
+        
+        if (nextButton.disabled) {
+            nextButton.classList.add('disabled');
+        } else {
+            nextButton.classList.remove('disabled');
+        }
+      };
+
+	  const loadCurrentPage = (filteredIcons) => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const pageIcons = filteredIcons.slice(startIndex, endIndex);
+        
+        this.loadIconsIntoModal(list, pageIcons);
+        updatePagination(filteredIcons);
+      };
+
+	  const showPageInput = () => {
+		  if (pageInput && pageInput.parentNode) {
+			pageInput.remove();
+		  }
+
+		  const pageInfoStyles = window.getComputedStyle(pageInfo);
+		  
+		  pageInput = document.createElement('input');
+		  pageInput.type = 'number';
+		  pageInput.min = '1';
+		  pageInput.max = totalPages;
+		  pageInput.placeholder = `${currentPage}/${totalPages}`;
+		  pageInput.className = 'search-input';
+		  
+		  pageInput.style.width = pageInfoStyles.width;
+		  pageInput.style.height = pageInfoStyles.height;
+		  pageInput.style.fontSize = pageInfoStyles.fontSize;
+		  pageInput.style.fontFamily = pageInfoStyles.fontFamily;
+		  pageInput.style.fontWeight = pageInfoStyles.fontWeight;
+		  pageInput.style.padding = pageInfoStyles.padding;
+		  pageInput.style.margin = pageInfoStyles.margin;
+		  pageInput.style.lineHeight = pageInfoStyles.lineHeight;
+		  pageInput.style.textAlign = 'center';
+		  pageInput.style.border = '2px solid #3a6158';
+		  pageInput.style.borderRadius = pageInfoStyles.borderRadius;
+		  pageInput.style.backgroundColor = '#131312';
+		  pageInput.style.color = '#728581';
+		  pageInput.style.boxSizing = 'border-box';
+		  pageInput.style.display = 'inline-block';
+		  pageInput.style.verticalAlign = 'middle';
+
+		  pageInput.addEventListener('keydown', (e) => {
+			  if (e.key === 'Enter') {
+				let pageNum = parseInt(pageInput.value);
+				
+				if (isNaN(pageNum)) {
+				  pageNum = currentPage;
+				}
+				
+				if (pageNum > totalPages) {
+				  pageNum = totalPages;
+				}
+				
+				if (pageNum < 1) {
+				  pageNum = 1;
+				}
+				
+				currentPage = pageNum;
+				const filteredIcons = this.getFilteredIcons();
+				loadCurrentPage(filteredIcons);
+				
+				paginationContainer.replaceChild(pageInfo, pageInput);
+				pageInput = null;
+			  } else if (e.key === 'Escape') {
+				paginationContainer.replaceChild(pageInfo, pageInput);
+				pageInput = null;
+			  }
+			});
+
+		  pageInput.addEventListener('blur', () => {
+			if (pageInput && pageInput.parentNode) {
+			  paginationContainer.replaceChild(pageInfo, pageInput);
+			  pageInput = null;
+			}
+		  });
+
+		  paginationContainer.replaceChild(pageInput, pageInfo);
+		  pageInput.focus();
+		  pageInput.select();
+		};
+
+	  pageInfo.addEventListener('mouseenter', () => {
+        pageInfo.style.color = '#8fa8a3';
+      });
+
+      pageInfo.addEventListener('mouseleave', () => {
+        pageInfo.style.color = '#728581';
+      });
+
+      pageInfo.addEventListener('click', showPageInput);
+
+	  prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          const filteredIcons = this.getFilteredIcons();
+          loadCurrentPage(filteredIcons);
+        }
+      });
+
+      nextButton.addEventListener('click', () => {
+        const filteredIcons = this.getFilteredIcons();
+        const totalPages = Math.ceil(filteredIcons.length / ITEMS_PER_PAGE);
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadCurrentPage(filteredIcons);
+        }
+      });
 
       searchInput.addEventListener('input', () => {
         if (iconSearchTimeout) {
@@ -622,9 +771,14 @@
         
         iconSearchTimeout = setTimeout(() => {
           currentIconSearchQuery = searchInput.value.toLowerCase().trim();
-          this.loadIconsIntoModal(list, modal, searchInput);
+          currentPage = 1;
+          const filteredIcons = this.getFilteredIcons();
+          loadCurrentPage(filteredIcons);
         }, 500);
       });
+
+	  const filteredIcons = this.getFilteredIcons();
+      loadCurrentPage(filteredIcons);
 
 	  modal.addEventListener('click', (e) => {
 		if (e.target === modal) {
@@ -645,10 +799,29 @@
 	  });
 	}
 
-    async loadIconsIntoModal(list, modal, searchInput) {
+    getFilteredIcons() {
+      if (!this.sortedIcons || !this.dataLoaded) return [];
+      
+      let filteredIcons = this.sortedIcons;
+      
+      if (currentIconSearchQuery) {
+        filteredIcons = this.sortedIcons.filter(icon => 
+          icon && icon.title && icon.title.toLowerCase().includes(currentIconSearchQuery)
+        );
+      }
+
+      return filteredIcons;
+    }
+
+    async loadIconsIntoModal(list, iconsToLoad) {
 	  try {
-        if (!this.iconsData) {
-          await this.loadIconsData();
+        if (!this.dataLoaded) {
+          list.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+              <p style="color: #728581; font-size: 16px; margin: 0;">Loading icons...</p>
+            </div>
+          `;
+          return;
         }
 		
 		list.innerHTML = '';
@@ -656,17 +829,7 @@
 		const validIcons = [];
 		const currentIconId = await window.DataStore.get(CONFIG.DATASTORE_KEY);
 		
-		let filteredIcons = this.iconsData;
-        
-        if (currentIconSearchQuery) {
-          filteredIcons = filteredIcons.filter(icon => 
-            icon && icon.title && icon.title.toLowerCase().includes(currentIconSearchQuery)
-          );
-        }
-
-        const sortedIcons = filteredIcons.sort((a, b) => b.id - a.id);
-		
-		const iconPromises = sortedIcons.slice(0, 200).map((icon) => {
+		const iconPromises = iconsToLoad.map((icon) => {
 		  return new Promise((resolve) => {
 			const img = new Image();
 			img.onload = () => {
@@ -750,7 +913,8 @@
 			await window.DataStore.set(CONFIG.DATASTORE_KEY, icon.id);
 			await this.applyCustomIcon();
 			currentIconSearchQuery = '';
-			document.body.removeChild(modal);
+			currentPage = 1;
+			document.body.removeChild(document.getElementById(CONFIG.MODAL_ID));
 		  });
 		  
 		  item.appendChild(iconImg);

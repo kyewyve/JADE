@@ -230,3 +230,49 @@
     box-shadow: 0 0 10px rgba(68, 194, 164, 0.5) !important;
     animation: smoothGlow 2s ease-in-out infinite alternate !important;
 }
+
+.pagination-button {
+  background-color: transparent;
+  border: transparent;
+  width: 51px;
+  height: 24px;
+  color: #728581;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-family: Montserrat, sans-serif;
+}
+.pagination-button:hover:not(.disabled) {
+  background-color: transparent;
+  border: transparent;
+  color: #8fa8a3;
+  transform: scale(1.1);
+}
+.pagination-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+  border: transparent;
+  color: #5a726d;
+}
+.pagination-button.disabled:hover {
+  transform: none;
+  background-color: transparent;
+  border: transparent;
+  color: #5a726d;
+}
+
+.v2-banner-component .lobby-banner,
+.v2-banner-placeholder .placeholder-invited-container
+{
+    position: relative;
+    -webkit-mask: linear-gradient(to bottom, 
+        transparent 0%, 
+		rgba(0,0,0,0) 10%,
+        rgba(0,0,0,0.7) 25%,
+        black 40%);
+}

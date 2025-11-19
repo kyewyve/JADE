@@ -1,6 +1,6 @@
 (() => {
   const CONFIG = {
-    API_URL: "https://raw.githubusercontent.com/kyewyve/Geppetto/refs/heads/main/LISTS/border.json",
+    API_URL: "https://plugins/Jade/API/border.json",
     MODAL_ID: "regalia.border-modal",
     DATASTORE_KEY: "regalia.border-datastore"
   };
