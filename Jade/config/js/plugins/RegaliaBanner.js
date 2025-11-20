@@ -17,6 +17,26 @@
       this.init();
     }
 
+    isFullPageModalVisible() {
+      try {
+        const fullPageModal = document.querySelector('lol-uikit-full-page-modal');
+        return fullPageModal && 
+               fullPageModal.offsetParent !== null && 
+               fullPageModal.style.display !== 'none' &&
+               fullPageModal.getBoundingClientRect().width > 0;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    isInsideModal(element) {
+      try {
+        return element.closest('lol-uikit-full-page-modal') !== null;
+      } catch (error) {
+        return false;
+      }
+    }
+
     async init() {
       try {
         this.applyCustomBanner();
@@ -28,20 +48,37 @@
       const checkInterval = setInterval(() => {
         const isBannerVisible = this.isBannerContainerVisible();
         const isPlayerVisible = this.isPlayerActive();
+        const isModalVisible = this.isFullPageModalVisible();
         
-        if (isPlayerVisible) {
+        if (isModalVisible) {
+          if (this.buttonCreated && this.customButton) {
+            try {
+              document.body.removeChild(this.customButton);
+            } catch (e) {}
+            this.customButton = null;
+            this.buttonCreated = false;
+          }
+          this.revertBanner();
+          return;
+        }
+        
+        if (isPlayerVisible && !isModalVisible) {
           this.applyCustomBanner();
         }
         
-        if (isBannerVisible) {
+        if (isBannerVisible && !isModalVisible) {
           if (!this.buttonCreated) {
             this.customButton = this.createBannerButton();
-            this.customButton.addEventListener('click', () => this.showBannerModal());
-            this.buttonCreated = true;
+            if (this.customButton) {
+              this.customButton.addEventListener('click', () => this.showBannerModal());
+              this.buttonCreated = true;
+            }
           }
         } else {
           if (this.buttonCreated && this.customButton) {
-            document.body.removeChild(this.customButton);
+            try {
+              document.body.removeChild(this.customButton);
+            } catch (e) {}
             this.customButton = null;
             this.buttonCreated = false;
           }
@@ -50,69 +87,95 @@
     }
 
     isBannerContainerVisible() {
-      const bannerContainer = document.querySelector('.identity-customizer-banner-wrapper');
-      return bannerContainer && bannerContainer.offsetParent !== null;
+      try {
+        const bannerContainer = document.querySelector('.identity-customizer-banner-wrapper');
+        return bannerContainer && 
+               bannerContainer.offsetParent !== null && 
+               !this.isInsideModal(bannerContainer);
+      } catch (error) {
+        return false;
+      }
     }
 
     isPlayerActive() {
-      const lobbyContainer = document.querySelector('.v2-banner-component.local-player');
-      const profileInfo = document.querySelector('.style-profile-summoner-info-component');
-      
-      return (lobbyContainer && lobbyContainer.offsetParent !== null) || 
-             (profileInfo && profileInfo.offsetParent !== null);
+      try {
+        const lobbyContainer = document.querySelector('.v2-banner-component.local-player');
+        const profileInfo = document.querySelector('.style-profile-summoner-info-component');
+        
+        const lobbyVisible = lobbyContainer && 
+                           lobbyContainer.offsetParent !== null && 
+                           !this.isInsideModal(lobbyContainer);
+        
+        const profileVisible = profileInfo && 
+                             profileInfo.offsetParent !== null && 
+                             !this.isInsideModal(profileInfo);
+        
+        return lobbyVisible || profileVisible;
+      } catch (error) {
+        return false;
+      }
     }
 
     createBannerButton() {
-      const button = document.createElement('button');
-      
-      const img = document.createElement('img');
-      img.src = '/fe/lol-uikit/images/icon_settings.png';
-      img.style.width = '15px';
-      img.style.height = '15px';
-      img.style.display = 'block';
-      
-      button.appendChild(img);
-      button.style.position = 'fixed';
-      button.style.bottom = '514px';
-      button.style.right = '300px';
-      button.style.zIndex = '9999';
-      button.style.padding = '5px';
-      button.style.backgroundColor = '#1e292c';
-      button.style.border = '2px solid #81602b';
-      button.style.borderRadius = '50%';
-      button.style.cursor = 'pointer';
-      button.style.width = '20px';
-      button.style.height = '20px';
-      button.style.display = 'flex';
-      button.style.alignItems = 'center';
-      button.style.justifyContent = 'center';
-      button.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-      button.style.transition = 'all 0.3s ease';
-      button.style.opacity = '0';
-      
-      document.body.appendChild(button);
-      
-      setTimeout(() => {
-        button.style.transition = 'opacity 0.2s ease, all 0.3s ease';
-        button.style.opacity = '1';
-      }, 10);
-      
-      button.addEventListener('mouseenter', () => {
-        button.style.backgroundColor = '#253236';
-        button.style.transform = 'scale(1.1)';
-        button.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
-      });
-      
-      button.addEventListener('mouseleave', () => {
+      try {
+        const button = document.createElement('button');
+        
+        const img = document.createElement('img');
+        img.src = '/fe/lol-uikit/images/icon_settings.png';
+        img.style.width = '15px';
+        img.style.height = '15px';
+        img.style.display = 'block';
+        
+        button.appendChild(img);
+        button.style.position = 'fixed';
+        button.style.bottom = '514px';
+        button.style.right = '300px';
+        button.style.zIndex = '9999';
+        button.style.padding = '5px';
         button.style.backgroundColor = '#1e292c';
-        button.style.transform = 'scale(1)';
+        button.style.border = 'var(--plug-jsbutton-color2)';
+        button.style.borderRadius = '50%';
+        button.style.cursor = 'pointer';
+        button.style.width = '20px';
+        button.style.height = '20px';
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
         button.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-      });
-      
-      return button;
+        button.style.transition = 'all 0.3s ease';
+        button.style.opacity = '0';
+        
+        document.body.appendChild(button);
+        
+        setTimeout(() => {
+          button.style.transition = 'opacity 0.2s ease, all 0.3s ease';
+          button.style.opacity = '1';
+        }, 10);
+        
+        button.addEventListener('mouseenter', () => {
+          button.style.backgroundColor = '#253236';
+          button.style.transform = 'scale(1.1)';
+          button.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+          button.style.backgroundColor = '#1e292c';
+          button.style.transform = 'scale(1)';
+          button.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+        });
+        
+        return button;
+      } catch (error) {
+        return null;
+      }
     }
 
     async applyCustomBanner() {
+      if (this.isFullPageModalVisible()) {
+        this.revertBanner();
+        return;
+      }
+      
       try {
         this.revertBanner();
         const selectedBannerPath = await window.DataStore.get(CONFIG.DATASTORE_KEY);
@@ -126,6 +189,7 @@
         const replaceBanners = () => {
           try {
             if (this.currentBannerPath !== selectedBannerPath) return;
+            if (this.isFullPageModalVisible()) return;
 
             const targetContainers = [
               '.style-profile-summoner-info-component',
@@ -137,9 +201,13 @@
               const containers = document.querySelectorAll(containerSelector);
               
               containers.forEach(container => {
+                if (this.isInsideModal(container)) return;
+                
                 const findAndReplace = (element) => {
                   const banners = element.querySelectorAll('.regalia-banner-asset-static-image');
                   banners.forEach(banner => {
+                    if (this.isInsideModal(banner)) return;
+                    
                     if (!banner._bannerReplaced) {
                       banner.src = selectedBannerPath;
                       banner._bannerReplaced = true;
@@ -181,14 +249,14 @@
         const delays = [200, 500, 1000, 2000];
         this.bannerTimeouts = delays.map(delay => 
           setTimeout(() => {
-            if (this.currentBannerPath === selectedBannerPath) {
+            if (this.currentBannerPath === selectedBannerPath && !this.isFullPageModalVisible()) {
               replaceBanners();
             }
           }, delay)
         );
 
         this.bannerInterval = setInterval(() => {
-          if (this.currentBannerPath === selectedBannerPath) {
+          if (this.currentBannerPath === selectedBannerPath && !this.isFullPageModalVisible()) {
             replaceBanners();
           }
         }, 2000);
@@ -198,11 +266,13 @@
 
     observeBannerChanges(banner, targetPath) {
       try {
+        if (this.isInsideModal(banner)) return;
+        
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
               const currentSrc = banner.getAttribute('src');
-              if (currentSrc !== targetPath) {
+              if (currentSrc !== targetPath && !this.isFullPageModalVisible()) {
                 banner.src = targetPath;
               }
             }
@@ -218,7 +288,7 @@
         
       } catch (error) {}
     }
-	
+
     revertBanner() {
       try {
         if (this.bannerInterval) {
@@ -245,7 +315,7 @@
         
       } catch (error) {}
     }
-	
+
     async getCurrentBanner() {
       return await window.DataStore.get(CONFIG.DATASTORE_KEY);
     }
@@ -265,13 +335,13 @@
       modal.style.display = 'flex';
       modal.style.alignItems = 'center';
       modal.style.justifyContent = 'center';
-      
-      const signature = document.createElement('div');
+	  
+	  const signature = document.createElement('div');
       signature.style.position = 'absolute';
       signature.style.bottom = '10px';
       signature.style.right = '10px';
       signature.style.backgroundColor = 'transparent';
-      signature.style.color = '#3a6158';
+      signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
       signature.style.fontFamily = 'Montserrat, sans-serif';
@@ -297,7 +367,7 @@
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
 
-      const logoUrl = 'https://plugins/Jade/assets/logo.png';
+      const logoUrl = 'https://plugins/JADE/assets/logo.png';
 		const testImg = new Image();
 		testImg.onload = () => {
 		  const logoBackground = document.createElement('div');
@@ -320,14 +390,14 @@
 		testImg.src = logoUrl;
 
       const reminder = document.createElement('div');
-      reminder.style.color = '#3a6158';
+      reminder.style.color = 'var(--plug-color1)';
       reminder.style.fontSize = '9px';
       reminder.style.fontWeight = 'bold';
       reminder.style.fontFamily = 'Montserrat, sans-serif';
       reminder.style.textAlign = 'right';
       reminder.style.padding = '10px';
       reminder.style.marginRight = '30px';
-      reminder.style.marginBottom = '0px';
+      reminder.style.marginBottom = '10px';
       reminder.textContent = 'REMEMBER: ONLY YOU CAN SEE CHANGES';
       reminder.className = 'soft-text-glow';
 
@@ -339,7 +409,7 @@
       closeBtn.style.right = '15px';
       closeBtn.style.width = '16px';
       closeBtn.style.height = '16px';
-      closeBtn.style.backgroundColor = '#28423d';
+      closeBtn.style.backgroundColor = 'var(--plug-color1)';
       closeBtn.style.borderRadius = '50%';
       closeBtn.style.border = 'none';
       closeBtn.style.cursor = 'pointer';

@@ -1,4 +1,4 @@
-import "https://plugins/Jade/config/css/LobbyBttn.css";
+import "https://plugins/JADE/config/css/LobbyBttn.css";
 
 (() => {
   const CONFIG = {
@@ -286,6 +286,7 @@ import "https://plugins/Jade/config/css/LobbyBttn.css";
       button.style.cursor = 'pointer';
       button.style.transition = 'all 0.3s ease';
       button.style.whiteSpace = 'nowrap';
+	  button.style.filter = 'var(--JADE-filter2)';
       
       button.addEventListener('click', () => {
         this.toggleContainerPosition();

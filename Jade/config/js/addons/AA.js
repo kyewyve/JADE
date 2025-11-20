@@ -59,7 +59,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         }
     };
 
-    class JadeAA {
+    class JADEAA {
         constructor() {
             this.styleElement = null;
             this.apiCallTimeout = null;
@@ -70,7 +70,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             this.observer = null;
             this.originalXHR = null;
             this.settings = {
-                JadeAA: true,
+                JADEAA: true,
                 hideModal: true,
                 muteSound: true
             };
@@ -89,7 +89,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
-                    this.settings.JadeAA = parsed.JadeAA ?? true;
+                    this.settings.JADEAA = parsed.JADEAA ?? true;
                     this.settings.hideModal = parsed.hideModal ?? true;
                     this.settings.muteSound = parsed.muteSound ?? true;
                 } catch (e) {}
@@ -141,7 +141,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         checkForMatch() {
             const dialogLargeElement = document.querySelector('.ready-check-timer');
             
-            if (dialogLargeElement && !this.styleElement && (this.settings.JadeAA || this.settings.hideModal)) {
+            if (dialogLargeElement && !this.styleElement && (this.settings.JADEAA || this.settings.hideModal)) {
                 if (!this.readyCheckStartTime) {
                     this.readyCheckStartTime = Date.now();
                 }
@@ -169,7 +169,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
                     }
                 }, 1000);
 
-                if (this.settings.JadeAA) {
+                if (this.settings.JADEAA) {
                     this.apiCallTimeout = setTimeout(() => {
                         fetch('/lol-matchmaking/v1/ready-check/accept', {
                             method: 'POST'
@@ -253,10 +253,10 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         }
     }
 
-    class JadeAASettings {
+    class JADEAASettings {
         constructor() {
             this.settings = {
-                JadeAA: true,
+                JADEAA: true,
                 hideModal: true,
                 muteSound: true
             };
@@ -273,7 +273,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
-                    this.settings.JadeAA = parsed.JadeAA ?? true;
+                    this.settings.JADEAA = parsed.JADEAA ?? true;
                     this.settings.hideModal = parsed.hideModal ?? true;
                     this.settings.muteSound = parsed.muteSound ?? true;
                 } catch (e) {}
@@ -295,8 +295,8 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
                     <div class="lol-settings-general-row">
                         <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: thin solid #3c3c41;">
-                                <lol-uikit-flat-checkbox ${this.settings.JadeAA ? 'class="checked"' : ''} style="margin-right: 15px;">
-                                    <input slot="input" type="checkbox" ${this.settings.JadeAA ? 'checked' : ''}>
+                                <lol-uikit-flat-checkbox ${this.settings.JADEAA ? 'class="checked"' : ''} style="margin-right: 15px;">
+                                    <input slot="input" type="checkbox" ${this.settings.JADEAA ? 'checked' : ''}>
                                 </lol-uikit-flat-checkbox>
                                 <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
                                     <p class="lol-settings-window-size-text" style="margin: 0; font-size: 12px; color: #a09b8c;">
@@ -358,7 +358,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
                     const checkbox = checkboxes[0].querySelector('input[type="checkbox"]');
                     if (checkbox) {
                         checkbox.addEventListener('change', (e) => {
-                            this.settings.JadeAA = e.target.checked;
+                            this.settings.JADEAA = e.target.checked;
                             this.saveSettings();
                             const flatCheckbox = checkbox.closest('lol-uikit-flat-checkbox');
                             if (flatCheckbox) {
@@ -413,18 +413,18 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
     const baseData = [
         {
-            groupName: "JadeAA",
-            titleKey: "el_JadeAA",
-            titleName: "Jade / AutoAccept",
-            capitalTitleKey: "el_JadeAA_capital", 
-            capitalTitleName: "Jade / AutoAccept",
+            groupName: "JADEAA",
+            titleKey: "el_JADEAA",
+            titleName: "JADE / AutoAccept",
+            capitalTitleKey: "el_JADEAA_capital", 
+            capitalTitleName: "JADE / AutoAccept",
             element: [
                 {
                     name: "eaa-settings", 
-                    title: "el_JadeAA_settings",
+                    title: "el_JADEAA_settings",
                     titleName: "Settings",
                     class: "eaa-settings",
-                    id: "JadeAASettings",
+                    id: "JADEAASettings",
                 },
             ],
         },
@@ -432,7 +432,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
     window.addEventListener("load", () => {
         settingsUtils(window, baseData);
-        new JadeAASettings();
-        window.JadeAA = new JadeAA();
+        new JADEAASettings();
+        window.JADEAA = new JADEAA();
     });
 })();

@@ -2,11 +2,11 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
 let data = [
   {
-    groupName: "JadeWL",
-    titleKey: "el_JadeWL",
-    titleName: "Jade / WinLose",
-    capitalTitleKey: "el_JadeWL_capital",
-    capitalTitleName: "Jade / WinLose",
+    groupName: "JADEWL",
+    titleKey: "el_JADEWL",
+    titleName: "JADE / WinLose",
+    capitalTitleKey: "el_JADEWL_capital",
+    capitalTitleName: "JADE / WinLose",
     element: [
       {
         name: "winlose-settings",
@@ -210,7 +210,7 @@ let data = [
     },
   };
 
-  class JadeWinLose {
+  class JADEWinLose {
     constructor() {
       this.observer = null;
       this.currentSummonerId = null;
@@ -760,7 +760,7 @@ let data = [
 			scale: 0.9;
         }
         .winloseStats .queue-type {
-			color: #c8aa6e;
+			color: var(--plug-color3);
 			text-shadow: 0 0 3px rgba(200, 170, 110, 0.3);
 			margin-bottom: 2px;
 			position: absolute;
@@ -768,25 +768,25 @@ let data = [
         .winloseStats .wins {
           color: #0acbe6;
           text-shadow: 0 0 3px rgba(10, 203, 230, 0.3);
-		  animation: soft-text-glow-blue 3s ease-in-out infinite alternate;
+		  animation: soft-text-glow-wins 3s ease-in-out infinite alternate;
         }
         .winloseStats .losses {
           color: #ff4b4b;
           text-shadow: 0 0 3px rgba(255, 75, 75, 0.3);
-		  animation: soft-text-glow-red 3s ease-in-out infinite alternate;
+		  animation: soft-text-glow-lose 3s ease-in-out infinite alternate;
         }
         .winloseStats .winrate {
           color: #f0e6d2;
           text-shadow: 0 0 3px rgba(240, 230, 210, 0.3);
-		  animation: soft-text-glow-pale 3s ease-in-out infinite alternate;
+		  animation: soft-text-glow-winrate 3s ease-in-out infinite alternate;
         }
         .winloseStats .kda {
-          color: #c8aa6e;
+          color: var(--plug-color3);
           text-shadow: 0 0 3px rgba(200, 170, 110, 0.3);
-		  animation: soft-text-glow-gold 3s ease-in-out infinite alternate;
+		  animation: soft-text-glow-kda 3s ease-in-out infinite alternate;
         }
         .winloseStats .loading {
-          color: #c8aa6e;
+          color: var(--plug-color3);
           text-shadow: 0 0 3px rgba(200, 170, 110, 0.3);
           animation: pulse 1.5s infinite;
         }
@@ -816,6 +816,6 @@ let data = [
 
   window.addEventListener("load", () => {
     settingsUtils(window, data);
-    new JadeWinLose();
+    new JADEWinLose();
   });
 })();

@@ -1,17 +1,17 @@
 const baseData = [
     {
-        groupName: "JadeBackground",
-        titleKey: "el_JadeBackground",
-        titleName: "Jade / Background",
-        capitalTitleKey: "el_JadeBackground_capital", 
-        capitalTitleName: "Jade / Background",
+        groupName: "JADEBackground",
+        titleKey: "el_JADEBackground",
+        titleName: "JADE / Background",
+        capitalTitleKey: "el_JADEBackground_capital", 
+        capitalTitleName: "JADE / Background",
         element: [
             {
                 name: "bgcm-settings", 
-                title: "el_JadeBackground_settings",
+                title: "el_JADEBackground_settings",
                 titleName: "Settings",
                 class: "bgcm-settings",
-                id: "JadeBackgroundSettings",
+                id: "JADEBackgroundSettings",
             },
         ],
     },
@@ -728,7 +728,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             button.style.zIndex = '9999';
             button.style.padding = '5px';
             button.style.backgroundColor = '#1e292c';
-            button.style.border = '2px solid #81602b';
+            button.style.border = 'var(--plug-jsbutton-color2)';
             button.style.borderRadius = '50%';
             button.style.cursor = 'pointer';
             button.style.width = '20px';
@@ -782,13 +782,13 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             modal.style.display = 'flex';
             modal.style.alignItems = 'center';
             modal.style.justifyContent = 'center';
-            
-            const signature = document.createElement('div');
+			
+			const signature = document.createElement('div');
             signature.style.position = 'absolute';
             signature.style.bottom = '10px';
             signature.style.right = '10px';
             signature.style.backgroundColor = 'transparent';
-            signature.style.color = '#3a6158';
+            signature.style.color = 'var(--plug-scrollable-color)';
             signature.style.fontSize = '9px';
             signature.style.fontWeight = 'bold';
             signature.style.fontFamily = 'Montserrat, sans-serif';
@@ -814,7 +814,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             content.style.display = 'flex';
             content.style.flexDirection = 'column';
 
-            const logoUrl = 'https://plugins/Jade/assets/logo.png';
+            const logoUrl = 'https://plugins/JADE/assets/logo.png';
             const testImg = new Image();
             testImg.onload = () => {
                 const logoBackground = document.createElement('div');
@@ -837,7 +837,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             testImg.src = logoUrl;
 
             const reminder = document.createElement('div');
-            reminder.style.color = '#3a6158';
+            reminder.style.color = 'var(--plug-color1)';
             reminder.style.fontSize = '9px';
             reminder.style.fontWeight = 'bold';
             reminder.style.fontFamily = 'Montserrat, sans-serif';
@@ -868,7 +868,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             closeBtn.style.right = '15px';
             closeBtn.style.width = '16px';
             closeBtn.style.height = '16px';
-            closeBtn.style.backgroundColor = '#28423d';
+            closeBtn.style.backgroundColor = 'var(--plug-color1)';
             closeBtn.style.borderRadius = '50%';
             closeBtn.style.border = 'none';
             closeBtn.style.cursor = 'pointer';
@@ -928,7 +928,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             
             const pageInfo = document.createElement('span');
             pageInfo.className = 'page-info';
-            pageInfo.style.color = '#728581';
+            pageInfo.style.color = 'var(--plug-color1)';
             pageInfo.style.fontSize = '14px';
             pageInfo.style.fontFamily = 'Montserrat, sans-serif';
             pageInfo.style.fontWeight = 'normal';
@@ -1038,7 +1038,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
                 pageInput.style.margin = pageInfoStyles.margin;
                 pageInput.style.lineHeight = pageInfoStyles.lineHeight;
                 pageInput.style.textAlign = 'center';
-                pageInput.style.border = '2px solid #3a6158';
+                pageInput.style.border = 'var (--plug-search-input-border)';
                 pageInput.style.borderRadius = pageInfoStyles.borderRadius;
                 pageInput.style.backgroundColor = '#131312';
                 pageInput.style.color = '#728581';
@@ -1087,11 +1087,11 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             };
 
             pageInfo.addEventListener('mouseenter', () => {
-                pageInfo.style.color = '#8fa8a3';
+                pageInfo.style.color = 'var(--plug-color2)';
             });
 
             pageInfo.addEventListener('mouseleave', () => {
-                pageInfo.style.color = '#728581';
+                pageInfo.style.color = 'var(--plug-color1)';
             });
 
             pageInfo.addEventListener('click', showPageInput);
@@ -1398,7 +1398,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         }
     }
 
-    class JadeBackgroundSettings {
+    class JADEBackgroundSettings {
 		constructor() {
 			this.settings = {
 				blurAmount: 5
@@ -1596,7 +1596,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
     window.addEventListener("load", () => {
         settingsUtils(window, baseData);
-        new JadeBackgroundSettings();
+        new JADEBackgroundSettings();
         window.BGCM = new BGCM();
     });
 })();

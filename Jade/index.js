@@ -1,22 +1,94 @@
-/**
-* @author kye
-* @link https://github.com/kyewyve/Jade
-*/
-
 window.Effect.apply('unified', { color: "#000000DA" });
 
 import "./config/css/plug-th.css";
-import * as observer from './config/js/main/obs.js'
-import * as shadow_dom from './config/js/main/shdw.js'
+import * as observer from './config/js/main/observer.js';
+import * as shadowDom from './config/js/main/shadowDom.js';
 import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Settings-Utils.js";
 
-// Promise.resolve().then(() => {
-//     if (observer && typeof observer.subscribeToElementCreation === 'function') {
-//         observer.subscribeToElementCreation('lol-regalia-crest-v2-element', (element) => {
-//             shadow_dom.custom_avatar(element);
-//         });
-//     }
-// });
+const initializeObserver = async () => {
+    try {
+        if (observer && typeof observer.subscribeToElementCreation === 'function') {
+            observer.subscribeToElementCreation('lol-uikit-full-page-modal', (element) => {
+                shadowDom.friendCustomBG(element);
+            });
+        }
+    } catch (error) {}
+};
+
+class VersionTextReplacer {
+    constructor() {
+        this.targetVersion = "25.23";
+        this.replacementText = "JADE";
+        this.observer = null;
+        this.init();
+    }
+
+    replaceVersionText() {
+        const versionContainers = document.querySelectorAll('.version-bar-container');
+        
+        versionContainers.forEach(container => {
+            const walker = document.createTreeWalker(
+                container,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.textContent.includes(this.targetVersion)) {
+                    node.textContent = node.textContent.replace(this.targetVersion, this.replacementText);
+                }
+            }
+        });
+    }
+
+    startObserver() {
+        this.observer = new MutationObserver((mutations) => {
+            let shouldReplace = false;
+
+            for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        if (node.classList && node.classList.contains('version-bar-container')) {
+                            shouldReplace = true;
+                            break;
+                        }
+                        if (node.querySelector && node.querySelector('.version-bar-container')) {
+                            shouldReplace = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (mutation.type === 'characterData') {
+                    const parent = mutation.target.parentElement;
+                    if (parent && parent.classList && parent.classList.contains('version-bar-container')) {
+                        shouldReplace = true;
+                    }
+                }
+            }
+
+            if (shouldReplace) {
+                setTimeout(() => this.replaceVersionText(), 100);
+            }
+        });
+
+        this.observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+    }
+
+    init() {
+        this.replaceVersionText();
+        this.startObserver();
+        setInterval(() => {
+            this.replaceVersionText();
+        }, 3000);
+    }
+}
 
 (() => {
     const DEFAULT_CONFIG = {
@@ -75,11 +147,11 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         },
 
         saveLanguageToStorage(language) {
-            DataStore.set('Jade-language', language);
+            DataStore.set('JADE-language', language);
         },
 
         getLanguageFromStorage() {
-            return DataStore.get('Jade-language') || 'en';
+            return DataStore.get('JADE-language') || 'en';
         },
 
         translations: {
@@ -151,32 +223,32 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
     const baseData = [
         {
-            groupName: "Jade",
-            titleKey: "el_Jade",
-            titleName: "Jade",
-            capitalTitleKey: "el_Jade_capital", 
-            capitalTitleName: "Jade",
+            groupName: "JADE",
+            titleKey: "el_JADE",
+            titleName: "JADE",
+            capitalTitleKey: "el_JADE_capital", 
+            capitalTitleName: "JADE",
             element: [
                 {
-                    name: "Jade-plugin-settings",
-                    title: "el_Jade_plugin_settings",
+                    name: "JADE-plugin-settings",
+                    title: "el_JADE_plugin_settings",
                     titleName: "Plugin Settings",
-                    class: "Jade-plugin-settings",
-                    id: "JadePluginSettings",
+                    class: "JADE-plugin-settings",
+                    id: "JADEPluginSettings",
                 },
                 {
-                    name: "Jade-addon",
-                    title: "el_Jade_addon",
+                    name: "JADE-addon",
+                    title: "el_JADE_addon",
                     titleName: "Addons",
-                    class: "Jade-addon",
-                    id: "JadeAddon",
+                    class: "JADE-addon",
+                    id: "JADEAddon",
                 },
                 {
-                    name: "Jade-easter-egg",
-                    title: "el_Jade_easter_egg",
+                    name: "JADE-easter-egg",
+                    title: "el_JADE_easter_egg",
                     titleName: " ",
-                    class: "Jade-easter-egg",
-                    id: "JadeEasterEgg",
+                    class: "JADE-easter-egg",
+                    id: "JADEEasterEgg",
                 },
             ],
         },
@@ -207,7 +279,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
     const SettingsStore = {
         async loadSettings() {
             try {
-                const settings = DataStore.get("Jade-plugin-settings");
+                const settings = DataStore.get("JADE-plugin-settings");
                 if (settings) {
                     const userSettings = JSON.parse(settings);
                     CONFIG = {
@@ -241,12 +313,12 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
                     addonBckChangerEnabled: CONFIG.addonBckChangerEnabled,
                     easterEggEnabled: CONFIG.easterEggEnabled
                 };
-                DataStore.set("Jade-plugin-settings", JSON.stringify(settings));
+                DataStore.set("JADE-plugin-settings", JSON.stringify(settings));
             } catch (error) {}
         },
     };
 
-    class JadePlugin {
+    class JADEPlugin {
         constructor() {
             this.easterEggLoaded = false;
             this.init();
@@ -291,7 +363,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         async loadPlugin(pluginName) {
             try {
-                const pluginModule = await import(`https://plugins/Jade/config/js/plugins/${pluginName}.js`);
+                const pluginModule = await import(`https://plugins/JADE/config/js/plugins/${pluginName}.js`);
                 
                 if (pluginModule.default) {
                     new pluginModule.default();
@@ -305,7 +377,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         async loadAddon(addonName) {
             try {
-                const addonModule = await import(`https://plugins/Jade/config/js/addons/${addonName}.js`);
+                const addonModule = await import(`https://plugins/JADE/config/js/addons/${addonName}.js`);
                 
                 if (addonModule.default) {
                     new addonModule.default();
@@ -321,7 +393,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             if (this.easterEggLoaded) return;
             
             try {
-                const easterEggModule = await import(`https://plugins/Jade/config/js/egg/eggpath.js`);
+                const easterEggModule = await import(`https://plugins/JADE/config/js/egg/eggpath.js`);
                 
                 if (easterEggModule.default) {
                     new easterEggModule.default();
@@ -343,7 +415,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         initializeEasterEggSettings() {
             const addSettings = () => {
-                const settingsContainer = document.querySelector(".Jade-easter-egg");
+                const settingsContainer = document.querySelector(".JADE-easter-egg");
                 if (!settingsContainer) return;
 
                 settingsContainer.innerHTML = `
@@ -395,7 +467,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             const observer = new MutationObserver((mutations) => {
                 for (const mutation of mutations) {
                     for (const node of mutation.addedNodes) {
-                        if (node.classList?.contains("Jade-easter-egg")) {
+                        if (node.classList?.contains("JADE-easter-egg")) {
                             addSettings();
                             return;
                         }
@@ -435,7 +507,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             };
 
             setTimeout(() => {
-                const checkboxes = document.querySelectorAll('.Jade-easter-egg lol-uikit-flat-checkbox');
+                const checkboxes = document.querySelectorAll('.JADE-easter-egg lol-uikit-flat-checkbox');
                 if (checkboxes[0]) {
                     checkboxes[0].id = 'easterEggCheckbox';
                     checkboxHandler('easterEggCheckbox', 'easterEggEnabled');
@@ -445,7 +517,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         initializePluginSettings() {
             const addSettings = () => {
-                const settingsContainer = document.querySelector(".Jade-plugin-settings");
+                const settingsContainer = document.querySelector(".JADE-plugin-settings");
                 if (!settingsContainer) return;
 
                 settingsContainer.innerHTML = `
@@ -540,7 +612,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             const observer = new MutationObserver((mutations) => {
                 for (const mutation of mutations) {
                     for (const node of mutation.addedNodes) {
-                        if (node.classList?.contains("Jade-plugin-settings")) {
+                        if (node.classList?.contains("JADE-plugin-settings")) {
                             addSettings();
                             return;
                         }
@@ -556,7 +628,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         initializeAddonSettings() {
             const addSettings = () => {
-                const settingsContainer = document.querySelector(".Jade-addon");
+                const settingsContainer = document.querySelector(".JADE-addon");
                 if (!settingsContainer) return;
 
                 settingsContainer.innerHTML = `
@@ -640,7 +712,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             const observer = new MutationObserver((mutations) => {
                 for (const mutation of mutations) {
                     for (const node of mutation.addedNodes) {
-                        if (node.classList?.contains("Jade-addon")) {
+                        if (node.classList?.contains("JADE-addon")) {
                             addSettings();
                             return;
                         }
@@ -675,7 +747,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             };
 
             setTimeout(() => {
-                const checkboxes = document.querySelectorAll('.Jade-plugin-settings lol-uikit-flat-checkbox');
+                const checkboxes = document.querySelectorAll('.JADE-plugin-settings lol-uikit-flat-checkbox');
                 if (checkboxes[0]) {
                     checkboxes[0].id = 'borderCheckbox';
                     checkboxHandler('borderCheckbox', 'regaliaBorderEnabled');
@@ -727,7 +799,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             };
 
             setTimeout(() => {
-                const checkboxes = document.querySelectorAll('.Jade-addon lol-uikit-flat-checkbox');
+                const checkboxes = document.querySelectorAll('.JADE-addon lol-uikit-flat-checkbox');
                 if (checkboxes[0]) {
                     checkboxes[0].id = 'aaCheckbox';
                     checkboxHandler('aaCheckbox', 'addonAAEnabled');
@@ -762,6 +834,8 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
     window.addEventListener("load", () => {
         settingsUtils(window, baseData);
         overrideNavigationTitles();
-        new JadePlugin();
+        new JADEPlugin();
+		new VersionTextReplacer();
+		initializeObserver();
     });
 })();

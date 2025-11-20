@@ -239,7 +239,7 @@
         button.style.zIndex = '9999';
         button.style.padding = '5px';
         button.style.backgroundColor = '#1e292c';
-        button.style.border = '2px solid #81602b';
+        button.style.border = 'var(--plug-jsbutton-color2)';
         button.style.borderRadius = '50%';
         button.style.cursor = 'pointer';
         button.style.width = '20px';
@@ -454,20 +454,20 @@
 	  modal.style.justifyContent = 'center';
 	  
 	  const signature = document.createElement('div');
-	  signature.style.position = 'absolute';
-	  signature.style.bottom = '10px';
-	  signature.style.right = '10px';
-	  signature.style.backgroundColor = 'transparent';
-	  signature.style.color = '#3a6158';
-	  signature.style.fontSize = '9px';
-	  signature.style.fontWeight = 'bold';
-	  signature.style.fontFamily = 'Montserrat, sans-serif';
-	  signature.style.textAlign = 'right';
-	  signature.style.padding = '5px';
-	  signature.style.zIndex = '10001';
-	  signature.style.pointerEvents = 'none';
-	  signature.textContent = 'by @kyewyve';
-	  modal.appendChild(signature);
+      signature.style.position = 'absolute';
+      signature.style.bottom = '10px';
+      signature.style.right = '10px';
+      signature.style.backgroundColor = 'transparent';
+      signature.style.color = 'var(--plug-scrollable-color)';
+      signature.style.fontSize = '9px';
+      signature.style.fontWeight = 'bold';
+      signature.style.fontFamily = 'Montserrat, sans-serif';
+      signature.style.textAlign = 'right';
+      signature.style.padding = '5px';
+      signature.style.zIndex = '10001';
+      signature.style.pointerEvents = 'none';
+      signature.textContent = 'by @kyewyve';
+      modal.appendChild(signature);
 	  
 	  const content = document.createElement('div');
 	  content.style.backgroundColor = '#131312';
@@ -484,7 +484,7 @@
 	  content.style.display = 'flex';
 	  content.style.flexDirection = 'column';
 
-	  const logoUrl = 'https://plugins/Jade/assets/logo.png';
+	  const logoUrl = 'https://plugins/JADE/assets/logo.png';
 		const testImg = new Image();
 		testImg.onload = () => {
 		  const logoBackground = document.createElement('div');
@@ -507,7 +507,7 @@
 		testImg.src = logoUrl;
 
 	  const reminder = document.createElement('div');
-	  reminder.style.color = '#3a6158';
+	  reminder.style.color = 'var(--plug-color1)';
 	  reminder.style.fontSize = '9px';
 	  reminder.style.fontWeight = 'bold';
 	  reminder.style.fontFamily = 'Montserrat, sans-serif';
@@ -539,7 +539,7 @@
 	  closeBtn.style.right = '15px';
 	  closeBtn.style.width = '16px';
 	  closeBtn.style.height = '16px';
-	  closeBtn.style.backgroundColor = '#28423d';
+	  closeBtn.style.backgroundColor = 'var(--plug-color1)';
 	  closeBtn.style.borderRadius = '50%';
 	  closeBtn.style.border = 'none';
 	  closeBtn.style.cursor = 'pointer';
@@ -599,7 +599,7 @@
 	  
 	  const pageInfo = document.createElement('span');
 		pageInfo.className = 'page-info';
-		pageInfo.style.color = '#728581';
+		pageInfo.style.color = 'var(--plug-color1)';
 		pageInfo.style.fontSize = '14px';
 		pageInfo.style.fontFamily = 'Montserrat, sans-serif';
 		pageInfo.style.fontWeight = 'normal';
@@ -627,7 +627,7 @@
 	  if (!this.dataLoaded) {
 		list.innerHTML = `
 		  <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-			<p style="color: #728581; font-size: 16px; margin: 0;">Loading icons...</p>
+			<p style="color: #728581; font-size: 16px; margin: 0;"> </p>
 		  </div>
 		`;
 		
@@ -689,7 +689,7 @@
 		  pageInput.style.margin = pageInfoStyles.margin;
 		  pageInput.style.lineHeight = pageInfoStyles.lineHeight;
 		  pageInput.style.textAlign = 'center';
-		  pageInput.style.border = '2px solid #3a6158';
+		  pageInput.style.border = 'var (--plug-search-input-border)';
 		  pageInput.style.borderRadius = pageInfoStyles.borderRadius;
 		  pageInput.style.backgroundColor = '#131312';
 		  pageInput.style.color = '#728581';
@@ -738,11 +738,11 @@
 		};
 
 	  pageInfo.addEventListener('mouseenter', () => {
-        pageInfo.style.color = '#8fa8a3';
+        pageInfo.style.color = 'var(--plug-color2)';
       });
 
       pageInfo.addEventListener('mouseleave', () => {
-        pageInfo.style.color = '#728581';
+        pageInfo.style.color = 'var(--plug-color1)';
       });
 
       pageInfo.addEventListener('click', showPageInput);
@@ -857,7 +857,7 @@
 		  list.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
               <p style="color: #728581; font-size: 16px; margin: 0;">
-                ${this.iconsData ? 'No icons found matching your search.' : 'Loading icons...'}
+                ${this.iconsData ? ' ' : ' '}
               </p>
             </div>
           `;

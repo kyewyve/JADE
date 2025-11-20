@@ -17,7 +17,7 @@
     }
 
     getLanguage() {
-      const savedLanguage = DataStore.get('Jade-language');
+      const savedLanguage = DataStore.get('JADE-language');
       if (savedLanguage && (savedLanguage === 'ru' || savedLanguage === 'zh' || savedLanguage === 'en')) {
         return savedLanguage;
       }
@@ -36,7 +36,7 @@
     waitForLanguage() {
       return new Promise((resolve) => {
         const checkLanguage = () => {
-          const savedLanguage = DataStore.get('Jade-language');
+          const savedLanguage = DataStore.get('JADE-language');
           if (savedLanguage && (savedLanguage === 'ru' || savedLanguage === 'zh' || savedLanguage === 'en')) {
             resolve(savedLanguage);
           } else {
@@ -216,7 +216,7 @@
       button.style.zIndex = '9999';
       button.style.padding = '5px';
       button.style.backgroundColor = '#1e292c';
-      button.style.border = '2px solid #81602b';
+      button.style.border = 'var(--plug-jsbutton-color2)';
       button.style.borderRadius = '50%';
       button.style.cursor = 'pointer';
       button.style.width = '20px';
@@ -265,13 +265,13 @@
       modal.style.display = 'flex';
       modal.style.alignItems = 'center';
       modal.style.justifyContent = 'center';
-      
-      const signature = document.createElement('div');
+	  
+	  const signature = document.createElement('div');
       signature.style.position = 'absolute';
       signature.style.bottom = '10px';
       signature.style.right = '10px';
       signature.style.backgroundColor = 'transparent';
-      signature.style.color = '#3a6158';
+      signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
       signature.style.fontFamily = 'Montserrat, sans-serif';
@@ -297,7 +297,7 @@
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
 
-      const logoUrl = 'https://plugins/Jade/assets/logo.png';
+      const logoUrl = 'https://plugins/JADE/assets/logo.png';
 		const testImg = new Image();
 		testImg.onload = () => {
 		  const logoBackground = document.createElement('div');
@@ -340,7 +340,7 @@
       reminder.style.position = 'absolute';
       reminder.style.top = '15px';
       reminder.style.right = '50px';
-      reminder.style.color = '#3a6158';
+      reminder.style.color = 'var(--plug-color1)';
       reminder.style.fontSize = '9px';
       reminder.style.fontWeight = 'bold';
       reminder.style.fontFamily = 'Montserrat, sans-serif';
@@ -357,7 +357,7 @@
       closeBtn.style.right = '15px';
       closeBtn.style.width = '16px';
       closeBtn.style.height = '16px';
-      closeBtn.style.backgroundColor = '#28423d';
+      closeBtn.style.backgroundColor = 'var(--plug-color1)';
       closeBtn.style.borderRadius = '50%';
       closeBtn.style.border = 'none';
       closeBtn.style.cursor = 'pointer';
@@ -383,7 +383,7 @@
       listContainer.style.overflowX = 'hidden';
       listContainer.style.marginTop = '30px';
       listContainer.style.paddingRight = '10px';
-      listContainer.className = 'jade-scrollable';
+      listContainer.className = 'JADE-scrollable';
       
       const list = document.createElement('div');
       list.style.display = 'grid';

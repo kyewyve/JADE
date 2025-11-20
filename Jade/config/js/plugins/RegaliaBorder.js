@@ -1,6 +1,6 @@
 (() => {
   const CONFIG = {
-    API_URL: "https://plugins/Jade/API/border.json",
+    API_URL: "https://plugins/JADE/API/border.json",
     MODAL_ID: "regalia.border-modal",
     DATASTORE_KEY: "regalia.border-datastore"
   };
@@ -35,17 +35,140 @@
       this.borderObservers = new Map();
       this._frozen = false;
       this._applying = false;
+      this.originalDivisions = new WeakMap();
+      this.currentBorderData = null;
       this.startObserver();
     }
 
-    freeze() { //"window.RegaliaBorder.freeze()" to STOP
+    isFullPageModalVisible() {
+      const fullPageModal = document.querySelector('lol-uikit-full-page-modal');
+      return fullPageModal && fullPageModal.offsetParent !== null;
+    }
+
+    freeze() {
       this.revertBorder();
       this._frozen = true;
     }
 
-    unfreeze() { //"window.RegaliaBorder.unfreeze()" to ACTIVE
+    unfreeze() {
       this._frozen = false;
       this.applyCustomBorder();
+    }
+
+    saveOriginalDivision(crestElement) {
+      if (crestElement.hasAttribute('ranked-division') && !this.originalDivisions.has(crestElement)) {
+        this.originalDivisions.set(crestElement, crestElement.getAttribute('ranked-division'));
+      }
+    }
+
+    restoreOriginalDivision(crestElement) {
+      if (this.originalDivisions.has(crestElement)) {
+        const originalValue = this.originalDivisions.get(crestElement);
+        if (originalValue) {
+          crestElement.setAttribute('ranked-division', originalValue);
+        } else {
+          crestElement.removeAttribute('ranked-division');
+        }
+        this.originalDivisions.delete(crestElement);
+      }
+    }
+
+    setCurrentBorderCSS(borderData) {
+      this.currentBorderData = borderData;
+      
+      if (borderData && borderData.crestType === 'ranked' && borderData.previewPath) {
+        document.documentElement.style.setProperty('--current-border', `url('${borderData.previewPath}')`);
+        this.applyBorderStylesToEmblems();
+      } else {
+        document.documentElement.style.removeProperty('--current-border');
+        this.removeBorderStylesFromEmblems();
+      }
+    }
+
+    applyBorderStylesToEmblems() {
+      if (this.isFullPageModalVisible()) return;
+
+      const styleId = 'regalia-border-emblem-styles';
+      
+      this.removeBorderStylesFromEmblems();
+
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="unranked"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="iron"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="bronze"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="silver"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="gold"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="platinum"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="emerald"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="diamond"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="master"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="grandmaster"],
+        :host .regalia-emblem-container .regalia-emblem[ranked-tier="challenger"] {
+          background-image: var(--current-border);
+        }
+      `;
+      document.head.appendChild(style);
+
+      this.applyStylesToExistingEmblems();
+    }
+
+    applyStylesToExistingEmblems() {
+      if (this.isFullPageModalVisible()) return;
+
+      const emblemElements = document.querySelectorAll('lol-regalia-emblem-element');
+      
+      emblemElements.forEach(emblemElement => {
+        if (emblemElement.shadowRoot) {
+          const styleId = 'current-border-emblem-style';
+          let existingStyle = emblemElement.shadowRoot.getElementById(styleId);
+          
+          if (this.currentBorderData && this.currentBorderData.crestType === 'ranked') {
+            if (!existingStyle) {
+              existingStyle = document.createElement('style');
+              existingStyle.id = styleId;
+              emblemElement.shadowRoot.appendChild(existingStyle);
+            }
+            
+            existingStyle.textContent = `
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="unranked"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="iron"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="bronze"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="silver"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="gold"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="platinum"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="emerald"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="diamond"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="master"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="grandmaster"],
+              :host .regalia-emblem-container .regalia-emblem[ranked-tier="challenger"] {
+                background-image: var(--current-border);
+              }
+            `;
+          } else if (existingStyle) {
+            existingStyle.remove();
+          }
+        }
+      });
+    }
+
+    removeBorderStylesFromEmblems() {
+      const styleId = 'regalia-border-emblem-styles';
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+
+      const emblemElements = document.querySelectorAll('lol-regalia-emblem-element');
+      emblemElements.forEach(emblemElement => {
+        if (emblemElement.shadowRoot) {
+          const shadowStyle = emblemElement.shadowRoot.getElementById('current-border-emblem-style');
+          if (shadowStyle) {
+            shadowStyle.remove();
+          }
+        }
+      });
     }
 
     findAllCrestElements() {
@@ -116,6 +239,15 @@
         const isPlayerActive = this.isPlayerActive();
         const isBorderVisible = this.isBorderContainerVisible();
         
+        if (this.isFullPageModalVisible()) {
+          if (this.buttonCreated && this.customButton) {
+            document.body.removeChild(this.customButton);
+            this.customButton = null;
+            this.buttonCreated = false;
+          }
+          return;
+        }
+        
         if (isPlayerActive) {
           this.applyCustomBorder();
           
@@ -139,7 +271,7 @@
             this.buttonCreated = false;
           }
         }
-      }, 750);
+      }, 850);
     }
 
     isBorderContainerVisible() {
@@ -171,7 +303,7 @@
       button.style.zIndex = '9999';
       button.style.padding = '5px';
       button.style.backgroundColor = '#1e292c';
-      button.style.border = '2px solid #81602b';
+      button.style.border = 'var(--plug-jsbutton-color2)';
       button.style.borderRadius = '50%';
       button.style.cursor = 'pointer';
       button.style.width = '20px';
@@ -224,10 +356,7 @@
           };
         });
         
-      } catch (error) {
-        console.error('Failed to load borders from API:', error);
-        this.borderList = [];
-      }
+      } catch (error) {}
     }
       
     getPreviewPath(assetPath) {
@@ -235,55 +364,67 @@
     }
 
     async applyCustomBorder() {
-		if (this._frozen || this._applying) return;
-		this._applying = true;
-		
-		try {
-			this.revertBorder();
-			
-			const selectedBorder = await this.getCurrentBorder();
-			if (!selectedBorder) {
-				return;
-			}
+      if (this._frozen || this._applying || this.isFullPageModalVisible()) return;
+      this._applying = true;
+      
+      try {
+        this.revertBorder();
+        
+        const selectedBorder = await this.getCurrentBorder();
+        if (!selectedBorder) {
+          return;
+        }
 
-			this.currentBorderPath = selectedBorder;
+        this.currentBorderPath = selectedBorder;
 
-			const crestElements = this.findAllCrestElements();
-			if (crestElements.length > 0) {
-				crestElements.forEach((crestElement) => {
-					this.applyBorderToElement(crestElement, selectedBorder);
-					StopTimeProp(crestElement, ['prestige-crest-id', 'crest-type', 'ranked-tier', 'ranked-division']);
-				});
-			}
-			
-			const customizerElement = document.querySelector('lol-regalia-identity-customizer-element');
-			if (customizerElement && customizerElement.shadowRoot) {
-				const customizerCrest = customizerElement.shadowRoot.querySelector('lol-regalia-crest-v2-element.regalia-identity-customizer-crest-element');
-				if (customizerCrest) {
-					this.applyBorderToElement(customizerCrest, selectedBorder);
-					StopTimeProp(customizerCrest, ['prestige-crest-id', 'crest-type', 'ranked-tier', 'ranked-division']);
-				}
-			}
-			
-		} catch (error) {
-		} finally {
-			this._applying = false;
-		}
-	}
+        const crestElements = this.findAllCrestElements();
+        if (crestElements.length > 0) {
+          crestElements.forEach((crestElement) => {
+            this.applyBorderToElement(crestElement, selectedBorder);
+            StopTimeProp(crestElement, ['prestige-crest-id', 'crest-type', 'ranked-tier', 'ranked-division']);
+          });
+        }
+        
+        const customizerElement = document.querySelector('lol-regalia-identity-customizer-element');
+        if (customizerElement && customizerElement.shadowRoot) {
+          const customizerCrest = customizerElement.shadowRoot.querySelector('lol-regalia-crest-v2-element.regalia-identity-customizer-crest-element');
+          if (customizerCrest) {
+            this.applyBorderToElement(customizerCrest, selectedBorder);
+            StopTimeProp(customizerCrest, ['prestige-crest-id', 'crest-type', 'ranked-tier', 'ranked-division']);
+          }
+        }
+        
+        this.setCurrentBorderCSS(selectedBorder);
+        
+      } catch (error) {
+      } finally {
+        this._applying = false;
+      }
+    }
 
     applyBorderToElement(crestElement, borderData) {
       try {
+        this.saveOriginalDivision(crestElement);
+
         if (borderData.crestType === 'prestige') {
           crestElement.setAttribute('prestige-crest-id', borderData.id);
           crestElement.setAttribute('crest-type', 'prestige');
           if (crestElement.hasAttribute('ranked-tier')) {
             crestElement.setAttribute('ranked-tier', '');
           }
+          this.restoreOriginalDivision(crestElement);
         } else if (borderData.crestType === 'ranked') {
           crestElement.setAttribute('prestige-crest-id', borderData.id);
           crestElement.setAttribute('crest-type', 'ranked');
           if (borderData.rankedTier) {
             crestElement.setAttribute('ranked-tier', borderData.rankedTier.toUpperCase());
+            
+            const highTiers = ['MASTER', 'GRANDMASTER', 'CHALLENGER'];
+            if (highTiers.includes(borderData.rankedTier.toUpperCase())) {
+              crestElement.setAttribute('ranked-division', ' ');
+            } else {
+              this.restoreOriginalDivision(crestElement);
+            }
           }
         }
 
@@ -297,12 +438,15 @@
             try {
               observer.disconnect();
               delete crestElement._borderReplaced;
+              this.restoreOriginalDivision(crestElement);
             } catch (e) {}
           });
           this.borderObservers.clear();
         }
         
         this.currentBorderPath = null;
+        this.currentBorderData = null;
+        this.setCurrentBorderCSS(null);
         
       } catch (error) {}
     }
@@ -318,6 +462,7 @@
     async setCurrentBorder(borderData) {
       try {
         await window.DataStore.set(CONFIG.DATASTORE_KEY, borderData);
+        this.setCurrentBorderCSS(borderData);
       } catch (error) {}
     }
 
@@ -344,7 +489,7 @@
       signature.style.bottom = '10px';
       signature.style.right = '10px';
       signature.style.backgroundColor = 'transparent';
-      signature.style.color = '#3a6158';
+      signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
       signature.style.fontFamily = 'Montserrat, sans-serif';
@@ -354,7 +499,7 @@
       signature.style.pointerEvents = 'none';
       signature.textContent = 'by @kyewyve';
       modal.appendChild(signature);
-      
+
       const content = document.createElement('div');
       content.style.backgroundColor = '#131312';
       content.style.padding = '10px';
@@ -369,31 +514,31 @@
       content.style.boxSizing = 'border-box';
       content.style.display = 'flex';
       content.style.flexDirection = 'column';
-	  
-	  const logoUrl = 'https://plugins/Jade/assets/logo.png';
-		const testImg = new Image();
-		testImg.onload = () => {
-		  const logoBackground = document.createElement('div');
-		  logoBackground.style.position = 'absolute';
-		  logoBackground.style.top = '0';
-		  logoBackground.style.left = '0';
-		  logoBackground.style.width = '100%';
-		  logoBackground.style.height = '100%';
-		  logoBackground.style.backgroundImage = `url('${logoUrl}')`;
-		  logoBackground.style.backgroundSize = '600px';
-		  logoBackground.style.backgroundRepeat = 'no-repeat';
-		  logoBackground.style.backgroundPosition = '-70px -70px';
-		  logoBackground.style.zIndex = '0';
-		  logoBackground.style.pointerEvents = 'none';
-		  logoBackground.style.animation = 'logoGlow 3s ease-in-out infinite alternate';
-		  logoBackground.style.transformOrigin = 'center center';
-		  logoBackground.style.opacity = '0.2';
-		  content.appendChild(logoBackground);
-		};
-		testImg.src = logoUrl;
+      
+      const logoUrl = 'https://plugins/JADE/assets/logo.png';
+      const testImg = new Image();
+      testImg.onload = () => {
+        const logoBackground = document.createElement('div');
+        logoBackground.style.position = 'absolute';
+        logoBackground.style.top = '0';
+        logoBackground.style.left = '0';
+        logoBackground.style.width = '100%';
+        logoBackground.style.height = '100%';
+        logoBackground.style.backgroundImage = `url('${logoUrl}')`;
+        logoBackground.style.backgroundSize = '600px';
+        logoBackground.style.backgroundRepeat = 'no-repeat';
+        logoBackground.style.backgroundPosition = '-70px -70px';
+        logoBackground.style.zIndex = '0';
+        logoBackground.style.pointerEvents = 'none';
+        logoBackground.style.animation = 'logoGlow 3s ease-in-out infinite alternate';
+        logoBackground.style.transformOrigin = 'center center';
+        logoBackground.style.opacity = '0.2';
+        content.appendChild(logoBackground);
+      };
+      testImg.src = logoUrl;
 
-	  const reminder = document.createElement('div');
-      reminder.style.color = '#3a6158';
+      const reminder = document.createElement('div');
+      reminder.style.color = 'var(--plug-color1)';
       reminder.style.fontSize = '9px';
       reminder.style.fontWeight = 'bold';
       reminder.style.fontFamily = 'Montserrat, sans-serif';
@@ -412,7 +557,7 @@
       closeBtn.style.right = '15px';
       closeBtn.style.width = '16px';
       closeBtn.style.height = '16px';
-      closeBtn.style.backgroundColor = '#28423d';
+      closeBtn.style.backgroundColor = 'var(--plug-color1)';
       closeBtn.style.borderRadius = '50%';
       closeBtn.style.border = 'none';
       closeBtn.style.cursor = 'pointer';
@@ -440,7 +585,7 @@
       tabsContainer.style.width = '100%';
       tabsContainer.style.border = '1px solid #2a2a2a';
       tabsContainer.style.borderRadius = '6px';
-	  tabsContainer.style.border = 'none';
+      tabsContainer.style.border = 'none';
       tabsContainer.style.overflow = 'hidden';
       tabsContainer.style.position = 'relative';
 
@@ -450,7 +595,7 @@
       activeTabBg.style.left = this.currentTab === 'classic' ? '0' : '50%';
       activeTabBg.style.width = '50%';
       activeTabBg.style.height = '100%';
-      activeTabBg.style.backgroundColor = '#87b8ac';
+      activeTabBg.style.backgroundColor = 'var(--plug-color-buttonHover)';
       activeTabBg.style.transition = 'all 0.65s cubic-bezier(.785, .135, .15, .86)';
       activeTabBg.style.zIndex = '1';
 
@@ -458,7 +603,7 @@
       classicTab.textContent = 'Classic';
       classicTab.style.padding = '12px 0';
       classicTab.style.backgroundColor = 'transparent';
-      classicTab.style.color = this.currentTab === 'classic' ? '#28423c' : '#87b8ac';
+      classicTab.style.color = this.currentTab === 'classic' ? 'var(--plug-color1)' : 'var(--plug-color-buttonHover)';
       classicTab.style.border = 'none';
       classicTab.style.borderRadius = '0px';
       classicTab.style.cursor = 'pointer';
@@ -474,7 +619,7 @@
       rankedTab.textContent = 'Ranked';
       rankedTab.style.padding = '12px 0';
       rankedTab.style.backgroundColor = 'transparent';
-      rankedTab.style.color = this.currentTab === 'ranked' ? '#28423c' : '#87b8ac';
+      rankedTab.style.color = this.currentTab === 'ranked' ? 'var(--plug-color1)' : 'var(--plug-color-buttonHover)';
       rankedTab.style.border = 'none';
       rankedTab.style.borderRadius = '0px';
       rankedTab.style.cursor = 'pointer';
@@ -489,8 +634,8 @@
       const updateTabs = () => {
         activeTabBg.style.left = this.currentTab === 'classic' ? '0' : '50%';
         
-        classicTab.style.color = this.currentTab === 'classic' ? '#28423c' : '#87b8ac';
-        rankedTab.style.color = this.currentTab === 'ranked' ? '#28423c' : '#87b8ac';
+        classicTab.style.color = this.currentTab === 'classic' ? 'var(--plug-color1)' : 'var(--plug-color-buttonHover)';
+        rankedTab.style.color = this.currentTab === 'ranked' ? 'var(--plug-color1)' : 'var(--plug-color-buttonHover)';
         
         if (this.currentTab === 'classic') {
           classicTab.style.transform = 'scale(1.02)';
@@ -528,7 +673,7 @@
       const list = document.createElement('div');
       list.style.display = 'grid';
       list.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
-	  list.style.marginTop = '10px';
+      list.style.marginTop = '10px';
       list.style.gap = '15px';
       list.style.width = '100%';
       list.style.boxSizing = 'border-box';
@@ -594,7 +739,7 @@
             item.style.flexDirection = 'column';
             item.style.alignItems = 'center';
             item.style.gap = '8px';
-			item.style.zIndex = '1';
+            item.style.zIndex = '1';
             item.style.boxSizing = 'border-box';
             
             const isCurrentBorder = currentBorder && 
@@ -609,8 +754,8 @@
               borderImg.style.boxSizing = 'border-box';
               
               if (isCurrentBorder) {
-				borderImg.classList.add('selected-item-img');
-				item.classList.add('selected-item-border');
+                borderImg.classList.add('selected-item-img');
+                item.classList.add('selected-item-border');
               }
               
               borderImg.addEventListener('mouseenter', () => {
@@ -624,18 +769,18 @@
                   borderImg.style.animation = 'scaleDown 0.5s ease forwards';
                 }
               });
-			  
-			  item.addEventListener('mouseenter', () => {
-				if (!isCurrentBorder) {
-				  item.style.animation = 'BorderColorUp 1s ease forwards';
-				}
-			  });
-			  
-			  item.addEventListener('mouseleave', () => {
-				if (!isCurrentBorder) {
-				  item.style.animation = 'BorderColorDown 0.5s ease forwards';
-				}
-			  });
+              
+              item.addEventListener('mouseenter', () => {
+                if (!isCurrentBorder) {
+                  item.style.animation = 'BorderColorUp 1s ease forwards';
+                }
+              });
+              
+              item.addEventListener('mouseleave', () => {
+                if (!isCurrentBorder) {
+                  item.style.animation = 'BorderColorDown 0.5s ease forwards';
+                }
+              });
               
               item.addEventListener('click', async () => {
                 await this.setCurrentBorder(border);
