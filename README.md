@@ -6,9 +6,13 @@ A comprehensive plug-in for the League of Legends client running through the [Pe
 ---
 Jade allows you to customize the League of Legends client at your discretion.
 
-The following functionality is currently available:
+______________________________________________________________
+______________________________________________________________
 
-<h1> 1. Background Changer </h1>
+
+<h1> The following functionality is currently available: </h1>
+
+<h2> 1. Background Changer </h2>
 **
 Replaces the background in the lol lobby, summoner's profile, TFT, and so on.
 **
@@ -22,7 +26,7 @@ The background is adjusted via the gear button, which is located next to the sum
 
 <img width="120" height="110" alt="image" src="https://github.com/user-attachments/assets/da953e46-37ed-4069-a97a-71e74b9462be" />
 
-<h1> 2. Border Changer </h1>
+<h2> 2. Border Changer </h2>
 **
 Replaces the border.
 **
@@ -34,7 +38,7 @@ The border is configured via the gear button, which is located in the profile se
 
 <img width="227" height="241" alt="image" src="https://github.com/user-attachments/assets/589a81f2-da63-4293-84f6-634911b04f26" />
 
-<h1> 3. Icon Changer </h1>
+<h2> 3. Icon Changer </h2>
 **
 Replaces the icon.
 **
@@ -46,7 +50,7 @@ The icon is configured via the gear button, which is located in the profile sett
 
 <img width="294" height="245" alt="image" src="https://github.com/user-attachments/assets/8d97e201-070b-4e2c-9359-b4d8cf1c90b3" />
 
-<h1> 4. Title Changer </h1>
+<h2> 4. Title Changer </h2>
 **
 Replaces the title.
 **
@@ -58,7 +62,7 @@ The title is configured via the gear button, which is located in the profile set
 
 <img width="238" height="127" alt="image" src="https://github.com/user-attachments/assets/23044dcf-eeb4-4c14-be19-fd4e2d3853c2" />
 
-<h1> 5. Banner Changer </h1>
+<h2> 5. Banner Changer </h2>
 **
 Replaces the banner.
 **
