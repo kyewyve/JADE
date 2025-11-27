@@ -98,19 +98,19 @@ Backgrounds
 > All changes take place locally. This means that other players WILL NOT SEE what you have chosen. ONLY YOU.
 
 Аддоны:
-1. Автопринятие игры
+<h1> 1. Автопринятие игры </h1>
 
 <img width="1043" height="875" alt="image" src="https://github.com/user-attachments/assets/335398f6-6bad-49ea-9f65-80753bfa40db" />
 
 Для его активации вам необходимо активировать нужный пункт в меню настроек клиента
 ---
-2. Статистика проигрыша\победы
+<h1> 2. Статистика проигрыша\победы </h1>
 
 <img width="1043" height="872" alt="image" src="https://github.com/user-attachments/assets/8f3efa79-c969-415d-9c30-c119009a8190" />
 
 Для его активации вам необходимо активировать нужный пункт в меню настроек клиента
 ---
-3. Кнопка скрытия списка друзей
+<h1> 3. Кнопка скрытия списка друзей </h1>
 
 <img width="1920" height="1079" alt="image" src="https://github.com/user-attachments/assets/4cd51c39-cac4-4bfb-8db7-c3389b999a05" />
 <img width="1912" height="1078" alt="image" src="https://github.com/user-attachments/assets/8abc19cd-c7b1-494e-b488-da5d6e51a4b1" />
