@@ -1,4 +1,11 @@
 # JADE
+
+<img width="1915" height="1074" alt="image" src="https://github.com/user-attachments/assets/c4ffb8d9-72b0-439c-9677-c719899fff5e" />
+
+
+
+
+
 Плагин для League of Legends, который работает через [Pengu Loader](https://github.com/PenguLoader/PenguLoader/releases/).
 ---
 JADE позволяет вам кастомизировать клиент League of Legends на ваш вкус.
