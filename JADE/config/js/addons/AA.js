@@ -102,7 +102,14 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 			
 			function PatchedXMLHttpRequest() {
 				const xhr = new (self.originalXHR)();
+				const originalOpen = xhr.open;
 				const originalSend = xhr.send;
+				
+				xhr.open = function(method, url, ...args) {
+					this._patchedUrl = url;
+					this._patchedMethod = method;
+					return originalOpen.call(this, method, url, ...args);
+				};
 				
 				xhr.send = function(data) {
 					const url = this._patchedUrl || null;
