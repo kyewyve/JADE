@@ -85,7 +85,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         }
 
         loadSettings() {
-            const savedSettings = DataStore?.get("eaa-settings");
+            const savedSettings = window.DataStore?.get("eaa-settings");
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
@@ -105,7 +105,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 				const originalSend = xhr.send;
 				
 				xhr.send = function(data) {
-					const url = this._url || (this._method && this._url !== undefined ? this._url : null);
+					const url = this._patchedUrl || null;
 					
 					if (self.settings.muteSound && url && (
 						url.includes('sfx-readycheck-ringmagic-accepted-loop') || 
@@ -269,7 +269,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
         }
 
         loadSettings() {
-            const savedSettings = DataStore?.get("eaa-settings");
+            const savedSettings = window.DataStore?.get("eaa-settings");
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
@@ -282,7 +282,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         saveSettings() {
             if (window.DataStore) {
-                DataStore.set("eaa-settings", JSON.stringify(this.settings));
+                window.DataStore?.set("eaa-settings", JSON.stringify(this.settings));
             }
         }
 

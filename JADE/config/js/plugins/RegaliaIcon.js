@@ -174,8 +174,10 @@
           this.summonerId = data.summonerId;
           this.puuid = data.puuid;
         } catch (e) {}
-
-        this.applyCustomIcon();
+		
+		await this.loadIconsData();
+		await this.applyCustomIcon();
+		
         this.IconContainerObserver();
       } catch (error) {}
     }
@@ -295,7 +297,7 @@
 
     async applyCustomIcon() {
       this.revertIcon();
-      const selectedId = await window.DataStore.get(CONFIG.DATASTORE_KEY);
+      const selectedId = await window.DataStore?.get(CONFIG.DATASTORE_KEY);
 
       if (!selectedId) {
         return;
@@ -461,7 +463,7 @@
       signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
-      signature.style.fontFamily = 'Montserrat, sans-serif';
+      signature.style.fontFamily = 'var(--font-JADE)';
       signature.style.textAlign = 'right';
       signature.style.padding = '5px';
       signature.style.zIndex = '10001';
@@ -510,7 +512,7 @@
 	  reminder.style.color = 'var(--plug-color1)';
 	  reminder.style.fontSize = '9px';
 	  reminder.style.fontWeight = 'bold';
-	  reminder.style.fontFamily = 'Montserrat, sans-serif';
+	  reminder.style.fontFamily = 'var(--font-JADE)';
 	  reminder.style.textAlign = 'right';
 	  reminder.style.padding = '10px'
 	  reminder.style.marginRight = '30px';
@@ -601,7 +603,7 @@
 		pageInfo.className = 'page-info';
 		pageInfo.style.color = 'var(--plug-color1)';
 		pageInfo.style.fontSize = '14px';
-		pageInfo.style.fontFamily = 'Montserrat, sans-serif';
+		pageInfo.style.fontFamily = 'var(--font-display)';
 		pageInfo.style.fontWeight = 'normal';
 		pageInfo.style.cursor = 'pointer';
 		pageInfo.style.padding = '6px 12px';
@@ -827,7 +829,7 @@
 		list.innerHTML = '';
 
 		const validIcons = [];
-		const currentIconId = await window.DataStore.get(CONFIG.DATASTORE_KEY);
+		const currentIconId = await window.DataStore?.get(CONFIG.DATASTORE_KEY);
 		
 		const iconPromises = iconsToLoad.map((icon) => {
 		  return new Promise((resolve) => {
@@ -910,7 +912,7 @@
 		  });
 		  
 		  item.addEventListener('click', async () => {
-			await window.DataStore.set(CONFIG.DATASTORE_KEY, icon.id);
+			await window.DataStore?.set(CONFIG.DATASTORE_KEY, icon.id);
 			await this.applyCustomIcon();
 			currentIconSearchQuery = '';
 			currentPage = 1;

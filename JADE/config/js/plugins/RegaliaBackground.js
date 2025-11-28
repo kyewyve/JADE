@@ -103,18 +103,18 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         async init() {
             this.loadSettings();
-            this.loadData();
+            await this.loadData();
             this.buttonContainerObserver();
             this.applyCustomBackground();
             this.setupChampionSelectObserver();
             
             if (window.DataStore) {
-                selectedSkinId = window.DataStore.get('bgcm-selected-skin-id');
+                selectedSkinId = window.DataStore?.get('bgcm-selected-skin-id');
             }
         }
 
         loadSettings() {
-            const savedSettings = DataStore?.get("bgcm-settings");
+            const savedSettings = window.DataStore?.get("bgcm-settings");
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
@@ -125,7 +125,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
         saveSettings() {
             if (window.DataStore) {
-                DataStore.set("bgcm-settings", JSON.stringify(this.settings));
+                window.DataStore?.set("bgcm-settings", JSON.stringify(this.settings));
             }
         }
 
@@ -403,11 +403,11 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             }
             
             if (window.DataStore) {
-                window.DataStore.set('bgcm-selected-background', url);
-                window.DataStore.set('bgcm-background-type', this.currentBackgroundType);
+                window.DataStore?.set('bgcm-selected-background', url);
+                window.DataStore?.set('bgcm-background-type', this.currentBackgroundType);
                 if (skinId) {
                     selectedSkinId = skinId;
-                    window.DataStore.set('bgcm-selected-skin-id', skinId);
+                    window.DataStore?.set('bgcm-selected-skin-id', skinId);
                 }
             }
         }
@@ -816,7 +816,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             signature.style.color = 'var(--plug-scrollable-color)';
             signature.style.fontSize = '9px';
             signature.style.fontWeight = 'bold';
-            signature.style.fontFamily = 'Montserrat, sans-serif';
+            signature.style.fontFamily = 'var(--font-JADE)';
             signature.style.textAlign = 'right';
             signature.style.padding = '5px';
             signature.style.zIndex = '10001';
@@ -865,7 +865,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             reminder.style.color = 'var(--plug-color1)';
             reminder.style.fontSize = '9px';
             reminder.style.fontWeight = 'bold';
-            reminder.style.fontFamily = 'Montserrat, sans-serif';
+            reminder.style.fontFamily = 'var(--font-JADE)';
             reminder.style.textAlign = 'right';
             reminder.style.padding = '10px';
             reminder.style.marginRight = '30px';
@@ -955,7 +955,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
             pageInfo.className = 'page-info';
             pageInfo.style.color = 'var(--plug-color1)';
             pageInfo.style.fontSize = '14px';
-            pageInfo.style.fontFamily = 'Montserrat, sans-serif';
+            pageInfo.style.fontFamily = 'var(--font-display)';
             pageInfo.style.fontWeight = 'normal';
             pageInfo.style.cursor = 'pointer';
             pageInfo.style.padding = '6px 12px';
@@ -1428,7 +1428,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 			this.settings = {
 				blurAmount: 5
 			};
-			this.init();
+			this.initializationPromise = this.init().catch(() => {});
 		}
 
 		async init() {
@@ -1437,7 +1437,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 		}
 
 		loadSettings() {
-			const savedSettings = DataStore?.get("bgcm-settings");
+			const savedSettings = window.DataStore?.get("bgcm-settings");
 			if (savedSettings) {
 				try {
 					const parsed = JSON.parse(savedSettings);
@@ -1448,7 +1448,7 @@ import { settingsUtils } from "https://unpkg.com/blank-settings-utils@latest/Set
 
 		saveSettings() {
 			if (window.DataStore) {
-				DataStore.set("bgcm-settings", JSON.stringify(this.settings));
+				window.DataStore?.set("bgcm-settings", JSON.stringify(this.settings));
 			}
 			
 			if (window.BGCM) {

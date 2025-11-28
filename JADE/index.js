@@ -2,6 +2,7 @@
  * @author kye
  * @link https://github.com/kyewyve/Jade
 **/
+import "./config/js/main/requiem.js";
 
 window.Effect.apply('unified', { color: "#000000DA" });
 
@@ -23,7 +24,7 @@ const initializeObserver = async () => {
 class VersionTextReplacer {
     constructor() {
         this.targetVersion = "25.23";
-        this.replacementText = "JADE v1.3";
+        this.replacementText = "JADE v1.4";
         this.observer = null;
         this.init();
     }
@@ -105,8 +106,7 @@ class VersionTextReplacer {
         addonAAEnabled: false,
 		addonWinLose: false,
         addonLobbyBttnEnabled: false,
-        addonBckChangerEnabled: false,
-        easterEggEnabled: false
+        addonBckChangerEnabled: false
     };
 
     let CONFIG = { ...DEFAULT_CONFIG };
@@ -152,11 +152,11 @@ class VersionTextReplacer {
         },
 
         saveLanguageToStorage(language) {
-            DataStore.set('JADE-language', language);
+            window.DataStore?.set('JADE-language', language);
         },
 
         getLanguageFromStorage() {
-            return DataStore.get('JADE-language') || 'en';
+            return window.DataStore?.get('JADE-language') || 'en';
         },
 
         translations: {
@@ -247,14 +247,7 @@ class VersionTextReplacer {
                     titleName: "Addons",
                     class: "JADE-addon",
                     id: "JADEAddon",
-                },
-                {
-                    name: "JADE-easter-egg",
-                    title: "el_JADE_easter_egg",
-                    titleName: " ",
-                    class: "JADE-easter-egg",
-                    id: "JADEEasterEgg",
-                },
+                }
             ],
         },
     ];
@@ -284,7 +277,7 @@ class VersionTextReplacer {
     const SettingsStore = {
         async loadSettings() {
             try {
-                const settings = DataStore.get("JADE-plugin-settings");
+                const settings = window.DataStore?.get("JADE-plugin-settings");
                 if (settings) {
                     const userSettings = JSON.parse(settings);
                     CONFIG = {
@@ -297,8 +290,7 @@ class VersionTextReplacer {
                         addonAAEnabled: userSettings.addonAAEnabled ?? DEFAULT_CONFIG.addonAAEnabled,
 						addonWinLose: userSettings.addonWinLose ?? DEFAULT_CONFIG.addonWinLose,
                         addonLobbyBttnEnabled: userSettings.addonLobbyBttnEnabled ?? DEFAULT_CONFIG.addonLobbyBttnEnabled,
-                        addonBckChangerEnabled: userSettings.addonBckChangerEnabled ?? DEFAULT_CONFIG.addonBckChangerEnabled,
-                        easterEggEnabled: userSettings.easterEggEnabled ?? DEFAULT_CONFIG.easterEggEnabled
+                        addonBckChangerEnabled: userSettings.addonBckChangerEnabled ?? DEFAULT_CONFIG.addonBckChangerEnabled
                     };
                 }
             } catch (error) {}
@@ -315,17 +307,15 @@ class VersionTextReplacer {
                     addonAAEnabled: CONFIG.addonAAEnabled,
 					addonWinLose: CONFIG.addonWinLose,
                     addonLobbyBttnEnabled: CONFIG.addonLobbyBttnEnabled,
-                    addonBckChangerEnabled: CONFIG.addonBckChangerEnabled,
-                    easterEggEnabled: CONFIG.easterEggEnabled
+                    addonBckChangerEnabled: CONFIG.addonBckChangerEnabled
                 };
-                DataStore.set("JADE-plugin-settings", JSON.stringify(settings));
+                window.DataStore?.set("JADE-plugin-settings", JSON.stringify(settings));
             } catch (error) {}
         },
     };
 
     class JADEPlugin {
         constructor() {
-            this.easterEggLoaded = false;
             this.init();
         }
 
@@ -360,15 +350,11 @@ class VersionTextReplacer {
             if (CONFIG.addonBckChangerEnabled) {
                 this.loadAddon("BckChanger");
             }
-            
-            if (CONFIG.easterEggEnabled) {
-                this.loadEasterEgg();
-            }
         }
 
         async loadPlugin(pluginName) {
             try {
-                const pluginModule = await import(`https://plugins/JADE/config/js/plugins/${pluginName}.js`);
+                const pluginModule = await import(`./config/js/plugins/${pluginName}.js`);
                 
                 if (pluginModule.default) {
                     new pluginModule.default();
@@ -382,7 +368,7 @@ class VersionTextReplacer {
 
         async loadAddon(addonName) {
             try {
-                const addonModule = await import(`https://plugins/JADE/config/js/addons/${addonName}.js`);
+                const addonModule = await import(`./config/js/addons/${addonName}.js`);
                 
                 if (addonModule.default) {
                     new addonModule.default();
@@ -394,130 +380,9 @@ class VersionTextReplacer {
             } catch (error) {}
         }
 
-        async loadEasterEgg() {
-            if (this.easterEggLoaded) return;
-            
-            try {
-                const easterEggModule = await import(`https://plugins/JADE/config/js/egg/eggpath.js`);
-                
-                if (easterEggModule.default) {
-                    new easterEggModule.default();
-                } else if (typeof easterEggModule === 'function') {
-                    new easterEggModule();
-                } else if (easterEggModule.init) {
-                    easterEggModule.init();
-                }
-                
-                this.easterEggLoaded = true;
-            } catch (error) {}
-        }
-
         initializeSettings() {
             this.initializePluginSettings();
             this.initializeAddonSettings();
-            this.initializeEasterEggSettings();
-        }
-
-        initializeEasterEggSettings() {
-            const addSettings = () => {
-                const settingsContainer = document.querySelector(".JADE-easter-egg");
-                if (!settingsContainer) return;
-
-                settingsContainer.innerHTML = `
-                    <div class="lol-settings-general-row">
-                        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
-                            
-							<div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: rgba(240, 230, 210, 0.1); border-radius: 4px; border-left: 3px solid #c8aa6e;">
-                                <lol-uikit-icon icon="warning" style="color: #c8aa6e; margin-top: 2px;"></lol-uikit-icon>
-                                <div style="display: flex; flex-direction: column; gap: 3px;">
-                                    <p class="lol-settings-window-size-text" style="margin: 0; font-weight: bold; color: #f0e6d2;">
-                                        ${LanguageManager.t('restartRequired')}
-                                    </p>
-                                    <p class="lol-settings-window-size-text" style="margin: 0; font-size: 12px; color: #a09b8c;">
-                                        ${LanguageManager.t('restartRequiredDesc')}
-                                    </p>
-                                </div>
-                            </div>
-							
-							<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: thin solid #3c3c41;">
-                                <lol-uikit-flat-checkbox ${CONFIG.easterEggEnabled ? 'class="checked"' : ''} style="margin-right: 15px;">
-                                    <input slot="input" type="checkbox" ${CONFIG.easterEggEnabled ? 'checked' : ''}>
-                                </lol-uikit-flat-checkbox>
-                                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
-                                    <p class="lol-settings-window-size-text" style="margin: 0; font-size: 12px; color: #a09b8c;">
-                                    </p>
-                                </div>
-                            </div>
-							
-							<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
-                                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
-                                    <p class="lol-settings-window-size-text" style="margin: 0; font-size: 12px; color: #a09b8c;">
-                                    </p>
-                                </div>
-                                <lol-uikit-flat-button-secondary 
-                                    id="restartClientBtn"
-                                    style="margin-left: 15px;"
-                                >
-                                    ${LanguageManager.t('restartButton')}
-                                </lol-uikit-flat-button-secondary>
-                            </div>
-							
-                        </div>
-                    </div>
-                `;
-
-                this.addEasterEggEventListeners();
-            };
-
-            const observer = new MutationObserver((mutations) => {
-                for (const mutation of mutations) {
-                    for (const node of mutation.addedNodes) {
-                        if (node.classList?.contains("JADE-easter-egg")) {
-                            addSettings();
-                            return;
-                        }
-                    }
-                }
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-            });
-        }
-
-        addEasterEggEventListeners() {
-            const checkboxHandler = (checkboxId, configKey) => {
-                const checkbox = document.querySelector(`#${checkboxId} input[type="checkbox"]`);
-                if (checkbox) {
-                    checkbox.addEventListener('change', async (e) => {
-                        const wasEnabled = CONFIG[configKey];
-                        CONFIG[configKey] = e.target.checked;
-                        SettingsStore.saveSettings();
-                        
-                        const flatCheckbox = checkbox.closest('lol-uikit-flat-checkbox');
-                        if (flatCheckbox) {
-                            if (e.target.checked) {
-                                flatCheckbox.classList.add('checked');
-                                if (!wasEnabled) {
-                                    await this.loadEasterEgg();
-                                }
-                            } else {
-                                flatCheckbox.classList.remove('checked');
-                                this.easterEggLoaded = false;
-                            }
-                        }
-                    });
-                }
-            };
-
-            setTimeout(() => {
-                const checkboxes = document.querySelectorAll('.JADE-easter-egg lol-uikit-flat-checkbox');
-                if (checkboxes[0]) {
-                    checkboxes[0].id = 'easterEggCheckbox';
-                    checkboxHandler('easterEggCheckbox', 'easterEggEnabled');
-                }
-            }, 100);
         }
 
         initializePluginSettings() {

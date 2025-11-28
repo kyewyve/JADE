@@ -3,9 +3,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-   --font-display: 'Poiret One' !important;
-   --font-display2: 'Montserrat' !important;
-   --font-body: 'Poiret One' !important;
+	--font-display: Poiret One !important;
+	/* LOL DISPLAY: "LoL Display","Times New Roman",Times,Baskerville,Georgia,serif */
+	
+	--font-body: Poiret One !important;     
+	/* LOL BODY: "LoL Body",Arial,"Helvetica Neue",Helvetica,sans-serif */
+/*_______________________________________________________________________________________________________*/
+	
+	/* CUSTOM */
+	--font-JADE: Montserrat !important;
 } 
 
 :root {
@@ -220,7 +226,7 @@
     border-radius: 13px;
     color: #ffffff;
     padding: 5px 20px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-display);
     font-size: 12px;
     transition: all 0.3s ease;
     outline: none;
@@ -275,7 +281,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  font-family: Montserrat, sans-serif;
+  font-family: var(--font-JADE);
 }
 .pagination-button:hover:not(.disabled) {
   background-color: transparent;

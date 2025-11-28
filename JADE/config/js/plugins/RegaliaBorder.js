@@ -342,6 +342,10 @@
         const response = await fetch(CONFIG.API_URL);
         const bordersData = await response.json();
         
+		const sortedBordersData = bordersData.sort((a, b) => {
+		  return parseInt(a.id) - parseInt(b.id);
+		});
+		
         this.borderList = bordersData.map(border => {
           const uniqueId = border["ranked-tier"] ? 
             `${border.id}-${border["ranked-tier"]}` : 
@@ -453,7 +457,7 @@
 
     async getCurrentBorder() {
       try {
-        return await window.DataStore.get(CONFIG.DATASTORE_KEY);
+        return await window.DataStore?.get(CONFIG.DATASTORE_KEY);
       } catch (error) {
         return null;
       }
@@ -461,7 +465,7 @@
 
     async setCurrentBorder(borderData) {
       try {
-        await window.DataStore.set(CONFIG.DATASTORE_KEY, borderData);
+        await window.DataStore?.set(CONFIG.DATASTORE_KEY, borderData);
         this.setCurrentBorderCSS(borderData);
       } catch (error) {}
     }
@@ -492,7 +496,7 @@
       signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
-      signature.style.fontFamily = 'Montserrat, sans-serif';
+      signature.style.fontFamily = 'var(--font-JADE)';
       signature.style.textAlign = 'right';
       signature.style.padding = '5px';
       signature.style.zIndex = '10001';
@@ -541,7 +545,7 @@
       reminder.style.color = 'var(--plug-color1)';
       reminder.style.fontSize = '9px';
       reminder.style.fontWeight = 'bold';
-      reminder.style.fontFamily = 'Montserrat, sans-serif';
+      reminder.style.fontFamily = 'var(--font-JADE)';
       reminder.style.textAlign = 'right';
       reminder.style.padding = '10px';
       reminder.style.marginRight = '30px';
@@ -607,7 +611,7 @@
       classicTab.style.border = 'none';
       classicTab.style.borderRadius = '0px';
       classicTab.style.cursor = 'pointer';
-      classicTab.style.fontFamily = 'Montserrat, sans-serif';
+      classicTab.style.fontFamily = 'var(--font-display)';
       classicTab.style.fontWeight = 'bold';
       classicTab.style.flex = '1';
       classicTab.style.width = '50%';
@@ -623,7 +627,7 @@
       rankedTab.style.border = 'none';
       rankedTab.style.borderRadius = '0px';
       rankedTab.style.cursor = 'pointer';
-      rankedTab.style.fontFamily = 'Montserrat, sans-serif';
+      rankedTab.style.fontFamily = 'var(--font-display)';
       rankedTab.style.fontWeight = 'bold';
       rankedTab.style.flex = '1';
       rankedTab.style.width = '50%';
@@ -707,7 +711,7 @@
         list.innerHTML = '';
 
         const currentBorder = await this.getCurrentBorder();
-        
+		
         const filteredBorders = this.borderList.filter(border => {
           if (this.currentTab === 'classic') {
             return border.crestType === 'prestige';
@@ -727,79 +731,85 @@
           return;
         }
 
-        const borderPromises = filteredBorders.map((border) => {
-          return new Promise((resolve) => {
-            const item = document.createElement('div');
-            item.style.padding = '10px';
-            item.style.backgroundColor = '#21211F';
-            item.style.borderRadius = '8px';
-            item.style.cursor = 'pointer';
-            item.style.border = '2px solid transparent';
-            item.style.display = 'flex';
-            item.style.flexDirection = 'column';
-            item.style.alignItems = 'center';
-            item.style.gap = '8px';
-            item.style.zIndex = '1';
-            item.style.boxSizing = 'border-box';
-            
-            const isCurrentBorder = currentBorder && 
-              currentBorder.uniqueId === border.uniqueId;
-            
-            const borderImg = new Image();
-            borderImg.onload = () => {
-              borderImg.style.width = '100%';
-              borderImg.style.height = '100%';
-              borderImg.style.objectFit = 'contain';
-              borderImg.style.borderRadius = '4px';
-              borderImg.style.boxSizing = 'border-box';
-              
-              if (isCurrentBorder) {
-                borderImg.classList.add('selected-item-img');
-                item.classList.add('selected-item-border');
-              }
-              
-              borderImg.addEventListener('mouseenter', () => {
-                if (!isCurrentBorder) {
-                  borderImg.style.animation = 'scaleUp 1s ease forwards';
-                }
-              });
+		const items = filteredBorders.map((border) => {
+		  const item = document.createElement('div');
+		  item.style.padding = '10px';
+		  item.style.backgroundColor = '#21211F';
+		  item.style.borderRadius = '8px';
+		  item.style.cursor = 'pointer';
+		  item.style.border = '2px solid transparent';
+		  item.style.display = 'flex';
+		  item.style.flexDirection = 'column';
+		  item.style.alignItems = 'center';
+		  item.style.gap = '8px';
+		  item.style.zIndex = '1';
+		  item.style.boxSizing = 'border-box';
+		  
+		  const isCurrentBorder = currentBorder && 
+			currentBorder.uniqueId === border.uniqueId;
+		  
+		  const borderImg = new Image();
+		  
+		  list.appendChild(item);
+		  
+		  return { item, borderImg, border, isCurrentBorder };
+		});
 
-              borderImg.addEventListener('mouseleave', () => {
-                if (!isCurrentBorder) {
-                  borderImg.style.animation = 'scaleDown 0.5s ease forwards';
-                }
-              });
-              
-              item.addEventListener('mouseenter', () => {
-                if (!isCurrentBorder) {
-                  item.style.animation = 'BorderColorUp 1s ease forwards';
-                }
-              });
-              
-              item.addEventListener('mouseleave', () => {
-                if (!isCurrentBorder) {
-                  item.style.animation = 'BorderColorDown 0.5s ease forwards';
-                }
-              });
-              
-              item.addEventListener('click', async () => {
-                await this.setCurrentBorder(border);
-                await this.applyCustomBorder();
-                document.body.removeChild(modal);
-              });
-              
-              item.appendChild(borderImg);
-              list.appendChild(item);
-              resolve();
-            };
-            borderImg.onerror = () => {
-              resolve();
-            };
-            borderImg.src = border.previewPath;
-          });
-        });
+		const loadPromises = items.map(({ item, borderImg, border, isCurrentBorder }) => {
+		  return new Promise((resolve) => {
+			borderImg.onload = () => {
+			  borderImg.style.width = '100%';
+			  borderImg.style.height = '100%';
+			  borderImg.style.objectFit = 'contain';
+			  borderImg.style.borderRadius = '4px';
+			  borderImg.style.boxSizing = 'border-box';
+			  
+			  if (isCurrentBorder) {
+				borderImg.classList.add('selected-item-img');
+				item.classList.add('selected-item-border');
+			  }
+			  
+			  borderImg.addEventListener('mouseenter', () => {
+				if (!isCurrentBorder) {
+				  borderImg.style.animation = 'scaleUp 1s ease forwards';
+				}
+			  });
 
-        await Promise.all(borderPromises);
+			  borderImg.addEventListener('mouseleave', () => {
+				if (!isCurrentBorder) {
+				  borderImg.style.animation = 'scaleDown 0.5s ease forwards';
+				}
+			  });
+			  
+			  item.addEventListener('mouseenter', () => {
+				if (!isCurrentBorder) {
+				  item.style.animation = 'BorderColorUp 1s ease forwards';
+				}
+			  });
+			  
+			  item.addEventListener('mouseleave', () => {
+				if (!isCurrentBorder) {
+				  item.style.animation = 'BorderColorDown 0.5s ease forwards';
+				}
+			  });
+			  
+			  item.addEventListener('click', async () => {
+				await this.setCurrentBorder(border);
+				await this.applyCustomBorder();
+				document.body.removeChild(modal);
+			  });
+			  
+			  item.appendChild(borderImg);
+			  resolve();
+			};
+			borderImg.onerror = () => {
+			  resolve();
+			};
+			borderImg.src = border.previewPath;
+		  });
+		});
+
+		await Promise.all(loadPromises);
 
       } catch (error) {}
     }

@@ -178,7 +178,7 @@
       
       try {
         this.revertBanner();
-        const selectedBannerPath = await window.DataStore.get(CONFIG.DATASTORE_KEY);
+        const selectedBannerPath = await window.DataStore?.get(CONFIG.DATASTORE_KEY);
 
         if (!selectedBannerPath) {
           return;
@@ -317,7 +317,7 @@
     }
 
     async getCurrentBanner() {
-      return await window.DataStore.get(CONFIG.DATASTORE_KEY);
+      return await window.DataStore?.get(CONFIG.DATASTORE_KEY);
     }
 
     async showBannerModal() {
@@ -344,7 +344,7 @@
       signature.style.color = 'var(--plug-scrollable-color)';
       signature.style.fontSize = '9px';
       signature.style.fontWeight = 'bold';
-      signature.style.fontFamily = 'Montserrat, sans-serif';
+      signature.style.fontFamily = 'var(--font-JADE)';
       signature.style.textAlign = 'right';
       signature.style.padding = '5px';
       signature.style.zIndex = '10001';
@@ -393,7 +393,7 @@
       reminder.style.color = 'var(--plug-color1)';
       reminder.style.fontSize = '9px';
       reminder.style.fontWeight = 'bold';
-      reminder.style.fontFamily = 'Montserrat, sans-serif';
+      reminder.style.fontFamily = 'var(--font-JADE)';
       reminder.style.textAlign = 'right';
       reminder.style.padding = '10px';
       reminder.style.marginRight = '30px';
@@ -497,7 +497,7 @@
         list.innerHTML = '';
 
         const validBanners = [];
-        const currentBannerPath = await window.DataStore.get(CONFIG.DATASTORE_KEY);
+        const currentBannerPath = await window.DataStore?.get(CONFIG.DATASTORE_KEY);
         
         const extractAllBanners = (data) => {
           const banners = [];
@@ -614,7 +614,7 @@
 		  });
           
           item.addEventListener('click', async () => {
-            await window.DataStore.set(CONFIG.DATASTORE_KEY, banner.assetPath);
+            await window.DataStore?.set(CONFIG.DATASTORE_KEY, banner.assetPath);
             await this.applyCustomBanner();
             document.body.removeChild(modal);
           });

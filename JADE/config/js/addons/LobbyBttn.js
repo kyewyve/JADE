@@ -1,4 +1,4 @@
-import "https://plugins/JADE/config/css/LobbyBttn.css";
+import "../../css/LobbyBttn.css";
 
 (() => {
   const CONFIG = {
@@ -23,7 +23,7 @@ import "https://plugins/JADE/config/css/LobbyBttn.css";
 
     async loadState() {
       try {
-        const savedState = await window.DataStore.get(CONFIG.DATASTORE_KEY);
+        const savedState = await window.DataStore?.get(CONFIG.DATASTORE_KEY);
         return savedState === true;
       } catch (error) {
         return false;
@@ -32,7 +32,7 @@ import "https://plugins/JADE/config/css/LobbyBttn.css";
 
     async saveState() {
       try {
-        await window.DataStore.set(CONFIG.DATASTORE_KEY, this.isShifted);
+        await window.DataStore?.set(CONFIG.DATASTORE_KEY, this.isShifted);
       } catch (error) {}
     }
 
