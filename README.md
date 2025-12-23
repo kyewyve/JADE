@@ -1,7 +1,6 @@
 # JADE
 
-<img width="1915" height="1074" alt="image" src="https://github.com/user-attachments/assets/c4ffb8d9-72b0-439c-9677-c719899fff5e" />
-
+<img width="1915" height="1074" alt="1" src="https://github.com/user-attachments/assets/93a595ea-c57d-4cde-b59d-836bbb2aa443" />
 
 
 
@@ -133,13 +132,3 @@ To activate the functionality, you need to install the necessary checkbox.
 <img width="1043" height="872" alt="image" src="https://github.com/user-attachments/assets/8f3efa79-c969-415d-9c30-c119009a8190" />
 
 To activate the functionality, you need to install the necessary checkbox.
-
----
-<h2> 3. Friedlist Button </h2>
-
-<img width="1920" height="1079" alt="image" src="https://github.com/user-attachments/assets/4cd51c39-cac4-4bfb-8db7-c3389b999a05" />
-<img width="1912" height="1078" alt="image" src="https://github.com/user-attachments/assets/8abc19cd-c7b1-494e-b488-da5d6e51a4b1" />
-
-To activate the functionality, you need to install the necessary checkbox.
-
----
